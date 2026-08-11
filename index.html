@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Philips Haifa OPS — מדריך אסטרטגיית AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Geist+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0D1117;
+  --surface: #F6F8FA;
+  --border: #D0D7DE;
+  --blue: #0969DA;
+  --green: #1A7F37;
+  --amber: #9A6700;
+  --red: #CF222E;
+  --muted: #656D76;
+  --card: #FFFFFF;
+  --radius: 10px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 1.7;
+  font-size: 15px;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 24px 20px 80px; }
+
+/* Header */
+.hero {
+  background: var(--ink);
+  color: #fff;
+  padding: 48px 32px;
+  border-radius: var(--radius);
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -40px; left: -40px;
+  width: 200px; height: 200px;
+  background: var(--blue);
+  opacity: 0.15;
+  border-radius: 50%;
+  filter: blur(60px);
+}
+.hero h1 { font-size: 2rem; font-weight: 900; margin-bottom: 8px; position: relative; }
+.hero p { font-size: 0.95rem; opacity: 0.8; position: relative; }
+.hero .meta { margin-top: 16px; font-size: 0.8rem; opacity: 0.5; font-family: 'Geist Mono', monospace; position: relative; }
+
+/* TOC */
+.toc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+.toc h2 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: var(--blue); }
+.toc ol { padding-right: 20px; }
+.toc li { margin-bottom: 6px; }
+.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px dashed var(--border); }
+.toc a:hover { color: var(--blue); border-color: var(--blue); }
+
+/* Sections */
+.section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.section-header {
+  padding: 18px 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: var(--surface); }
+.section-header h2 { font-size: 1.1rem; font-weight: 700; }
+.section-header .chip {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.chip-blue { background: #DDF4FF; color: var(--blue); }
+.chip-green { background: #DAFBE1; color: var(--green); }
+.chip-amber { background: #FFF8C5; color: var(--amber); }
+.chip-red { background: #FFEBE9; color: var(--red); }
+.toggle-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: var(--muted);
+  transition: transform 0.2s;
+}
+.section.open .toggle-icon { transform: rotate(90deg); }
+.section-body {
+  display: none;
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--border);
+}
+.section.open .section-body { display: block; padding-top: 20px; }
+.section-body h3 { font-size: 0.95rem; font-weight: 700; margin: 16px 0 8px; color: var(--blue); }
+.section-body h3:first-child { margin-top: 0; }
+.section-body p { margin-bottom: 10px; color: #333; }
+.section-body ul, .section-body ol { padding-right: 20px; margin-bottom: 12px; }
+.section-body li { margin-bottom: 4px; }
+.section-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.85rem; }
+.section-body th, .section-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: right; }
+.section-body th { background: var(--surface); font-weight: 700; }
+.highlight-box {
+  background: #DDF4FF;
+  border-right: 3px solid var(--blue);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+.kpi-card {
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+}
+.kpi-card .num { font-size: 1.5rem; font-weight: 900; color: var(--blue); }
+.kpi-card .label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+/* Comment System */
+.comment-panel {
+  margin-top: 16px;
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+.comment-panel summary {
+  font-size: 0.8rem;
+  color: var(--blue);
+  cursor: pointer;
+  font-weight: 500;
+}
+.comment-list { margin-top: 10px; }
+.comment-item {
+  background: #FFFBDD;
+  border: 1px solid #E8D867;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+}
+.comment-item .comment-meta { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; font-family: 'Geist Mono', monospace; }
+.comment-item .comment-delete {
+  float: left;
+  background: none;
+  border: none;
+  color: var(--red);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.comment-form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.comment-form input, .comment-form textarea {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'Heebo', sans-serif;
+  font-size: 0.82rem;
+  direction: rtl;
+}
+.comment-form textarea { min-height: 60px; resize: vertical; }
+.comment-form button {
+  align-self: flex-start;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 500;
+}
+.comment-form button:hover { opacity: 0.9; }
+
+/* Floating Actions */
+.fab-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background: var(--ink);
+  padding: 10px 16px;
+  border-radius: 40px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  z-index: 1000;
+}
+.fab-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.fab-btn:hover { background: rgba(255,255,255,0.2); }
+.fab-btn.active { background: var(--blue); border-color: var(--blue); }
+
+/* Print */
+@media print {
+  .fab-bar, .comment-panel, .toc { display: none !important; }
+  .section-body { display: block !important; padding-top: 16px !important; }
+  .section { break-inside: avoid; border: none; box-shadow: none; }
+  .section-header { padding: 10px 0; }
+  .hero { background: #fff !important; color: var(--ink) !important; border: 2px solid var(--ink); }
+  .hero::after { display: none; }
+  body { background: #fff; font-size: 11pt; }
+  .container { max-width: 100%; padding: 0; }
+}
+body.show-comments .comment-panel { display: block !important; }
+body.hide-comments .comment-panel { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+  <h1>מדריך אסטרטגיית AI — Philips Haifa OPS</h1>
+  <p>תכנית רב-שנתית לאימוץ בינה מלאכותית בפעילות התפעולית, מבוססת על התכנית הלאומית לבינה מלאכותית</p>
+  <div class="meta">v1.0 | Roee Lahav | OPS Innovation & AI | 2026</div>
+</div>
+
+<div class="toc">
+  <h2>תוכן עניינים</h2>
+  <ol>
+    <li><a href="#north-star">כוכב הצפון — חזון 3-5 שנים</a></li>
+    <li><a href="#national-plan">תכנית הלאומית — 5 מאפשרים</a></li>
+    <li><a href="#translation">תרגום לפיליפס חיפה</a></li>
+    <li><a href="#horizon-6m">אופק 6 חודשים — ניצחונות מהירים</a></li>
+    <li><a href="#horizon-1y">אופק שנה — בנייה</a></li>
+    <li><a href="#horizon-3y">אופק 3 שנים — התבססות</a></li>
+    <li><a href="#experimentation">צוות ניסויים ברקע</a></li>
+    <li><a href="#factory-vision">חזון המפעל — זווית פיננסית</a></li>
+    <li><a href="#data-protection">הגנת מידע — חדר נקי ו-DMS</a></li>
+    <li><a href="#recruitment">גיוס הנהלה — שפת מנהלים</a></li>
+    <li><a href="#risks">סיכונים ומענה</a></li>
+    <li><a href="#next-steps">צעדים הבאים</a></li>
+  </ol>
+</div>
+
+<!-- Section 1: North Star -->
+<div class="section open" id="north-star">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>כוכב הצפון — חזון 3-5 שנים</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-blue">חזון</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="highlight-box">
+      <strong>North Star:</strong> Philips Haifa OPS הופך לאתר הייצור הראשון בפיליפס שמפעיל תהליכי ייצור, תחזוקה ואיכות מונחי AI end-to-end — מודל שישוכפל לאתרים נוספים.
+    </div>
+    <h3>מה זה אומר בפועל?</h3>
+    <ul>
+      <li>כל תהליך ייצור מלווה ב-AI Agent שמזהה חריגות בזמן אמת</li>
+      <li>תחזוקה חזויה (Predictive Maintenance) מבוססת נתוני חיישנים ו-LLM</li>
+      <li>מערכת איכות אוטונומית — מ-CAPA עד RCA — עם אדם בלולאה (Human-in-the-Loop)</li>
+      <li>צמצום 30%+ בזמן השבתה לא מתוכנן</li>
+      <li>הפחתת 40% בעלויות תהליכי QA ידניים</li>
+    </ul>
+    <h3>מדדי הצלחה (KPIs)</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="num">30%</div><div class="label">צמצום השבתה</div></div>
+      <div class="kpi-card"><div class="num">40%</div><div class="label">חיסכון QA ידני</div></div>
+      <div class="kpi-card"><div class="num">5x</div><div class="label">מהירות RCA</div></div>
+      <div class="kpi-card"><div class="num">#1</div><div class="label">אתר פיליפס ב-AI</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: National Plan -->
+<div class="section" id="national-plan">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>התכנית הלאומית — 5 מאפשרים</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-green">מסגרת</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <p>התכנית הלאומית לבינה מלאכותית מגדירה 5 מאפשרים (Enablers) שהם התנאים ההכרחיים לאימוץ AI בכל ארגון:</p>
+    <table>
+      <tr><th>מאפשר</th><th>תיאור</th><th>רלוונטיות לפיליפס</th></tr>
+      <tr><td>הון אנושי</td><td>הכשרת כוח אדם — Creators (מפתחים) ו-Implementers (משתמשים)</td><td>גבוהה מאוד — רצפת ייצור + הנדסה</td></tr>
+      <tr><td>בריתות</td><td>שיתופי פעולה אקדמיה-תעשייה-ממשלה</td><td>Technion, חממות, Beta-Site</td></tr>
+      <tr><td>תשתית</td><td>חומרה, ענן, רשתות, מחשוב</td><td>OT network, edge computing, IIoT</td></tr>
+      <tr><td>דאטה ומודלים</td><td>נגישות נתונים, מודלים פתוחים, Fine-tuning</td><td>DMS, Windchill, SAP, sensors</td></tr>
+      <tr><td>רגולציה מאפשרת</td><td>חקיקה שמאפשרת חדשנות תוך הגנה</td><td>ISO 13485, FDA, EU MDR — אתגר וגם יתרון</td></tr>
+    </table>
+    <h3>Creators vs. Implementers</h3>
+    <p>התכנית הלאומית מבדילה בין:</p>
+    <ul>
+      <li><strong>Creators</strong> — בוני מודלים, מפתחי AI, data scientists. אצלנו: צוות חדשנות + IT</li>
+      <li><strong>Implementers</strong> — מי שמשתמש בכלי AI בעבודה היומיומית. אצלנו: מהנדסי ייצור, QA, תחזוקה, logistics</li>
+    </ul>
+    <div class="highlight-box">
+      <strong>תובנה מפתח:</strong> היחס הנדרש הוא 1:10 — על כל Creator נדרשים 10 Implementers מיומנים. ההשקעה ב-upskilling של הרצפה חשובה לא פחות מבניית מודלים.
+    </div>
+    <h3>קונספט Beta-Site</h3>
+    <p>התכנית הלאומית מציעה שארגונים ישמשו כ-Beta-Site — סביבה אמיתית לבדיקת טכנולוגיות AI חדשות. פיליפס חיפה, עם סביבת ייצור רפואית מורכבת ומגוון תהליכים, היא מועמדת אידיאלית.</p>
+  </div>
+</div>
+
+<!-- Section 3: Translation -->
+<div class="section" id="translation">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>תרגום לפיליפס חיפה</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-amber">תכנון</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>מאפשר לאומי</th><th>תרגום מקומי</th><th>סטטוס</th></tr>
+      <tr><td>הון אנושי</td><td>AI Champions בכל מחלקה; הכשרת Copilot/Claude לכלל העובדים</td><td>🟡 בתהליך</td></tr>
+      <tr><td>בריתות</td><td>POC עם Technion; שת"פ עם Philips Global AI Hub</td><td>🟡 במגעים</td></tr>
+      <tr><td>תשתית</td><td>AWS Bedrock (Claude); Edge Gateway לרצפת ייצור; OT network segmentation</td><td>🟢 פעיל</td></tr>
+      <tr><td>דאטה ומודלים</td><td>Windchill PLM + SAP integration; sensor data pipeline; DMS structuring</td><td>🟡 חלקי</td></tr>
+      <tr><td>רגולציה</td><td>SaMD framework; AI validation protocol per IEC 62304; risk-based approach</td><td>🔴 נדרש פיתוח</td></tr>
+    </table>
+    <h3>יתרונות ייחודיים של האתר</h3>
+    <ul>
+      <li><strong>מורכבות רגולטורית</strong> — מי שיפצח AI + FDA/MDR יהפוך למודל לכל אתרי פיליפס</li>
+      <li><strong>גיוון תהליכי</strong> — ייצור, חדר נקי, שרשרת אספקה, QA, תחזוקה — מגרש ניסויים עשיר</li>
+      <li><strong>קרבה לטלנט</strong> — Technion + תעשיית הייטק ישראלית = נגישות לכישרונות AI</li>
+      <li><strong>גודל מנוהל</strong> — מספיק גדול להשפעה, מספיק קטן לזריזות</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 4: 6-month horizon -->
+<div class="section" id="horizon-6m">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>אופק 6 חודשים — ניצחונות מהירים</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-green">פעולה</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>מטרה: הוכחת ערך (Proof of Value)</h3>
+    <p>Quick wins שמראים ROI מיידי ובונים אמון הנהלה:</p>
+    <table>
+      <tr><th>#</th><th>יוזמה</th><th>תוצאה צפויה</th><th>בעלים</th></tr>
+      <tr><td>1</td><td>Copilot / Claude לכל צוות הנדסה</td><td>חיסכון 5+ שעות/שבוע/אדם</td><td>Innovation Lead</td></tr>
+      <tr><td>2</td><td>AI-Assisted CAPA Writing</td><td>זמן כתיבה ↓50%</td><td>QA + Innovation</td></tr>
+      <tr><td>3</td><td>Predictive Maintenance POC — קו ייצור 1</td><td>הוכחת ירידה בהשבתות</td><td>Maintenance + IT</td></tr>
+      <tr><td>4</td><td>AI Champions — 1 בכל מחלקה</td><td>רשת פנימית של 8-10 שגרירים</td><td>Innovation Lead</td></tr>
+      <tr><td>5</td><td>Dashboard תפעולי מונחה AI</td><td>Visibility בזמן אמת</td><td>Innovation + IT</td></tr>
+    </table>
+    <div class="highlight-box">
+      <strong>עיקרון מנחה:</strong> לא לחכות לפרויקט מושלם. להתחיל עם use-case אחד שכואב, להראות תוצאה תוך 4-6 שבועות, ולהרחיב.
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: 1-year horizon -->
+<div class="section" id="horizon-1y">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>אופק שנה — בנייה</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-blue">בנייה</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>מטרה: תשתית + Scale</h3>
+    <ul>
+      <li><strong>AI Platform מאוחדת</strong> — Bedrock + Edge + Data Lake — כל ה-use-cases על תשתית אחת</li>
+      <li><strong>3-5 Agents בייצור</strong> — CAPA agent, Maintenance agent, Supply chain agent, QC inspection agent</li>
+      <li><strong>AI Validation Framework</strong> — SOP ברור לאימות מודלי AI לפי IEC 62304 + risk-based approach</li>
+      <li><strong>הכשרת 80% מהצוות</strong> — Implementer level — שימוש יומיומי בכלי AI</li>
+      <li><strong>מדידת ROI</strong> — dashboard פיננסי שמראה חיסכון מצטבר</li>
+    </ul>
+    <h3>Milestones</h3>
+    <table>
+      <tr><th>רבעון</th><th>אבן דרך</th></tr>
+      <tr><td>Q1</td><td>AI Platform architecture signed-off; First agent in production</td></tr>
+      <tr><td>Q2</td><td>Validation framework approved by QA; 3 agents deployed</td></tr>
+      <tr><td>Q3</td><td>50% staff trained; ROI dashboard live</td></tr>
+      <tr><td>Q4</td><td>5 agents running; Global presentation of Haifa model</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Section 6: 3-year horizon -->
+<div class="section" id="horizon-3y">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>אופק 3 שנים — התבססות</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-amber">חזון</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>מצב יעד</h3>
+    <ul>
+      <li>כל תהליך מפתח (ייצור, QA, תחזוקה, logistics) כולל רכיב AI</li>
+      <li>מודל Haifa משוכפל ל-2+ אתרי פיליפס (Best → Cleveland, Pune)</li>
+      <li>צוות AI-Ops ייעודי (3-5 אנשים) — Creators מקומיים</li>
+      <li>Patent/IP על מתודולוגיות AI-in-regulated-manufacturing</li>
+      <li>שותפויות אקדמיה פעילות (Technion, Tel Aviv Uni)</li>
+    </ul>
+    <h3>שינויים ארגוניים</h3>
+    <ul>
+      <li>AI-Ops team — דיווח ישיר ל-Site Director</li>
+      <li>AI budget line — לא טמון ב-IT, אלא סעיף תפעולי עצמאי</li>
+      <li>Mandatory AI literacy — כמו Safety training, חלק מ-onboarding</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 7: Experimentation Team -->
+<div class="section" id="experimentation">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>צוות ניסויים ברקע</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-green">מבנה</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>הרעיון</h3>
+    <p>צוות קטן (2-3 אנשים) שתפקידו לרוץ קדימה — לנסות טכנולוגיות, לשבור דברים, ולהביא back תובנות מעשיות. לא תקציב גדול, לא headcount ייעודי — אנשים קיימים עם 20% זמן מוקדש.</p>
+    <h3>עקרונות פעולה</h3>
+    <ul>
+      <li><strong>Fail Fast</strong> — POC של 2-4 שבועות. אם לא עובד — הלאה</li>
+      <li><strong>Document Everything</strong> — כל ניסוי מתועד: מה נבדק, תוצאה, המלצה</li>
+      <li><strong>No Production Pressure</strong> — הצוות לא אחראי על SLA. חופש לנסות</li>
+      <li><strong>Monthly Show & Tell</strong> — הצגה חודשית להנהלה (15 דקות)</li>
+    </ul>
+    <h3>נושאים לחקירה (H2 2026)</h3>
+    <table>
+      <tr><th>נושא</th><th>טכנולוגיה</th><th>פוטנציאל</th></tr>
+      <tr><td>Computer Vision לבדיקת איכות</td><td>Edge AI + cameras</td><td>החלפת בדיקה ויזואלית ידנית</td></tr>
+      <tr><td>Humanoid Robots</td><td>Digit/Figure</td><td>משימות רצפת ייצור מונוטוניות</td></tr>
+      <tr><td>Digital Twin</td><td>Sensor fusion + LLM</td><td>סימולציה של שינויי תהליך</td></tr>
+      <tr><td>Voice AI לתיעוד</td><td>Whisper + Claude</td><td>תיעוד hands-free בחדר נקי</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Section 8: Factory Vision -->
+<div class="section" id="factory-vision">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>חזון המפעל — זווית פיננסית</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-amber">ROI</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>שפת כסף להנהלה</h3>
+    <p>הנהלה לא קונה טכנולוגיה — היא קונה תוצאות עסקיות. כל יוזמת AI חייבת תרגום לשפה פיננסית:</p>
+    <table>
+      <tr><th>קטגוריה</th><th>מדד</th><th>יעד שנתי</th><th>שווי €</th></tr>
+      <tr><td>השבתה</td><td>Unplanned Downtime</td><td>↓30%</td><td>€200-400K</td></tr>
+      <tr><td>איכות</td><td>CAPA cycle time</td><td>↓50%</td><td>€100-150K (labor)</td></tr>
+      <tr><td>פרודוקטיביות</td><td>Engineering hours saved</td><td>5h/week/person</td><td>€300-500K</td></tr>
+      <tr><td>Compliance</td><td>Audit findings</td><td>↓40%</td><td>Risk avoidance</td></tr>
+      <tr><td>Supply Chain</td><td>Lead time accuracy</td><td>↑25%</td><td>€50-100K (inventory)</td></tr>
+    </table>
+    <div class="highlight-box">
+      <strong>Total estimated annual value:</strong> €650K - €1.15M<br>
+      <strong>Required investment:</strong> ~€200-300K (licenses, training, 0.5 FTE)<br>
+      <strong>ROI:</strong> 3-4x in year 1
+    </div>
+    <h3>איך מציגים להנהלה</h3>
+    <ul>
+      <li>לא "AI זה העתיד" — אלא "€400K חיסכון בהשבתות בשנה הראשונה"</li>
+      <li>לא "מודלים מתקדמים" — אלא "50% פחות זמן על CAPAs"</li>
+      <li>לא "digital transformation" — אלא "אנחנו האתר הראשון שמציג את זה ל-Global"</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 9: Data Protection -->
+<div class="section" id="data-protection">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>הגנת מידע — חדר נקי ו-DMS</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-red">רגולציה</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>האתגר</h3>
+    <p>סביבת ייצור רפואית (ISO 13485, FDA 21 CFR Part 11) מחייבת הגנה קפדנית על:</p>
+    <ul>
+      <li><strong>DHR</strong> (Device History Records) — תיעוד ייצור מלא לכל מכשיר</li>
+      <li><strong>DMS</strong> (Document Management System) — SOPs, Work Instructions, Forms</li>
+      <li><strong>חדר נקי</strong> — נתוני סביבה, particle counts, environmental monitoring</li>
+      <li><strong>Validation data</strong> — IQ/OQ/PQ records</li>
+    </ul>
+    <h3>עקרונות AI + Data Protection</h3>
+    <table>
+      <tr><th>עיקרון</th><th>יישום</th></tr>
+      <tr><td>Data stays on-prem</td><td>Edge processing; שום patient data לענן ציבורי</td></tr>
+      <tr><td>Audit trail</td><td>כל פעולת AI מתועדת — מי ביקש, מה התשובה, מתי</td></tr>
+      <tr><td>Human-in-the-Loop</td><td>AI מציע, אדם מאשר — תמיד. אין autonomous decisions על product quality</td></tr>
+      <tr><td>Validated AI</td><td>כל מודל בייצור עובר validation protocol (IQ/OQ/PQ equivalent)</td></tr>
+      <tr><td>Access control</td><td>Role-based — לא כולם רואים הכל. AI agents get minimum necessary access</td></tr>
+    </table>
+    <div class="highlight-box">
+      <strong>Red Line:</strong> AI לעולם לא יחליף חתימה אלקטרונית, לא ישנה DHR, ולא ישחרר מוצר ללא אישור אנושי. זה non-negotiable.
+    </div>
+  </div>
+</div>
+
+<!-- Section 10: Recruitment -->
+<div class="section" id="recruitment">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>גיוס הנהלה — שפת מנהלים</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-blue">שכנוע</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>מסרים מותאמים לקהל</h3>
+    <table>
+      <tr><th>קהל</th><th>מה חשוב לו</th><th>המסר שלנו</th></tr>
+      <tr><td>Site Director</td><td>P&L, headcount, Global visibility</td><td>"€1M value, zero new headcount, Haifa becomes the AI reference site"</td></tr>
+      <tr><td>QA Director</td><td>Compliance, audit readiness, risk</td><td>"40% faster CAPAs, validated framework, reduces audit findings"</td></tr>
+      <tr><td>Finance</td><td>Budget, ROI, payback period</td><td>"€200K investment, 3x return year 1, scales without linear cost"</td></tr>
+      <tr><td>IT Director</td><td>Security, integration, maintenance</td><td>"On existing Bedrock infra, no new systems, zero patient data exposure"</td></tr>
+      <tr><td>HR</td><td>Skills, retention, employer brand</td><td>"AI upskilling program boosts retention; positions us as innovation employer"</td></tr>
+    </table>
+    <h3>טקטיקות שכנוע</h3>
+    <ul>
+      <li><strong>Show, don't tell</strong> — הדגמה חיה של 2 דקות שווה יותר ממצגת של 30</li>
+      <li><strong>Peer pressure</strong> — "Best כבר עושים X, Cleveland מתחילים Y"</li>
+      <li><strong>Small ask</strong> — "רק POC של 6 שבועות, תקציב מינימלי, אם לא עובד — עוצרים"</li>
+      <li><strong>Coalition</strong> — גיוס 2-3 מנהלי ביניים לפני ההנהלה הבכירה</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 11: Risks -->
+<div class="section" id="risks">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>סיכונים ומענה</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-red">סיכונים</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>סיכון</th><th>השפעה</th><th>סבירות</th><th>מענה</th></tr>
+      <tr><td>התנגדות הנהלה</td><td>גבוהה</td><td>בינונית</td><td>Quick wins + ROI language + coalition building</td></tr>
+      <tr><td>רגולציה חוסמת</td><td>גבוהה</td><td>בינונית</td><td>Risk-based approach; Human-in-the-Loop; early engagement with QA</td></tr>
+      <tr><td>חוסר כישרונות AI</td><td>בינונית</td><td>גבוהה</td><td>Upskilling > Hiring; Creators צריכים רק 2-3; Implementers = everyone</td></tr>
+      <tr><td>Data quality</td><td>גבוהה</td><td>גבוהה</td><td>Start with clean data sources (Windchill, SAP); build pipeline gradually</td></tr>
+      <tr><td>Cybersecurity incident</td><td>קריטית</td><td>נמוכה</td><td>Air-gapped OT; no patient data in cloud; penetration testing</td></tr>
+      <tr><td>AI hallucination in production</td><td>קריטית</td><td>בינונית</td><td>Human-in-the-Loop mandatory; confidence thresholds; validation protocol</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Section 12: Next Steps -->
+<div class="section" id="next-steps">
+  <div class="section-header" onclick="toggleSection(this)">
+    <h2>צעדים הבאים</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="chip chip-green">פעולה</span>
+      <span class="toggle-icon">◂</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <h3>30 ימים הקרובים</h3>
+    <ol>
+      <li>הצגת GUIDE זה להנהלה → אישור כיוון</li>
+      <li>זיהוי AI Champion בכל מחלקה (8-10 אנשים)</li>
+      <li>בחירת POC ראשון (המלצה: AI-Assisted CAPA)</li>
+      <li>הגדרת תקציב ניסויים (€50K-€100K) לשנה</li>
+      <li>קביעת Monthly Show & Tell ביומן</li>
+    </ol>
+    <h3>60 ימים</h3>
+    <ol>
+      <li>POC ראשון — kick-off ותוצאות ראשוניות</li>
+      <li>AI Validation Framework — draft ראשון לאישור QA</li>
+      <li>Upskilling plan — לוח זמנים להכשרת Implementers</li>
+      <li>תחילת עבודה על Data Pipeline (Windchill → AI)</li>
+    </ol>
+    <h3>90 ימים</h3>
+    <ol>
+      <li>POC ראשון — תוצאות + decision: scale or pivot</li>
+      <li>POC שני — kick-off</li>
+      <li>Global presentation — "What Haifa is doing with AI"</li>
+      <li>Budget request for Year 2 based on actual results</li>
+    </ol>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- Floating Action Bar -->
+<div class="fab-bar">
+  <button class="fab-btn" onclick="expandAll()">פתח הכל</button>
+  <button class="fab-btn" onclick="collapseAll()">סגור הכל</button>
+  <button class="fab-btn" onclick="toggleComments()" id="btn-comments">הערות</button>
+  <button class="fab-btn" onclick="exportComments()">ייצוא הערות</button>
+  <button class="fab-btn" onclick="window.print()">PDF / הדפסה</button>
+</div>
+
+<script>
+// Toggle sections
+function toggleSection(header) {
+  const section = header.closest('.section');
+  section.classList.toggle('open');
+}
+function expandAll() {
+  document.querySelectorAll('.section').forEach(s => s.classList.add('open'));
+}
+function collapseAll() {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('open'));
+}
+
+// Comment system
+const STORAGE_KEY = 'philips-ai-strategy-comments';
+let commentsVisible = false;
+
+function getComments() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveComments(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function toggleComments() {
+  commentsVisible = !commentsVisible;
+  const btn = document.getElementById('btn-comments');
+  btn.classList.toggle('active', commentsVisible);
+  if (commentsVisible) {
+    document.body.classList.add('show-comments');
+    document.body.classList.remove('hide-comments');
+    injectCommentPanels();
+  } else {
+    document.body.classList.remove('show-comments');
+    document.body.classList.add('hide-comments');
+  }
+}
+
+function injectCommentPanels() {
+  if (document.querySelector('.comment-panel')) return;
+  const comments = getComments();
+  document.querySelectorAll('.section').forEach(section => {
+    const id = section.id;
+    const body = section.querySelector('.section-body');
+    if (!body) return;
+    const panel = document.createElement('div');
+    panel.className = 'comment-panel';
+    panel.innerHTML = `
+      <details open>
+        <summary>הערות לסעיף זה</summary>
+        <div class="comment-list" data-section="${id}"></div>
+        <div class="comment-form">
+          <input type="text" placeholder="שם" class="comment-name" value="${localStorage.getItem('comment-author') || ''}">
+          <textarea placeholder="הוסף הערה..." class="comment-text"></textarea>
+          <button onclick="addComment('${id}', this)">הוסף</button>
+        </div>
+      </details>
+    `;
+    body.appendChild(panel);
+    renderComments(id);
+  });
+}
+
+function renderComments(sectionId) {
+  const list = document.querySelector(`.comment-list[data-section="${sectionId}"]`);
+  if (!list) return;
+  const comments = getComments();
+  const items = comments[sectionId] || [];
+  list.innerHTML = items.map((c, i) => `
+    <div class="comment-item">
+      <button class="comment-delete" onclick="deleteComment('${sectionId}', ${i})">מחק</button>
+      <div class="comment-meta">${c.author} · ${c.date}</div>
+      <div>${c.text}</div>
+    </div>
+  `).join('');
+}
+
+function addComment(sectionId, btn) {
+  const form = btn.closest('.comment-form');
+  const name = form.querySelector('.comment-name').value.trim() || 'אנונימי';
+  const text = form.querySelector('.comment-text').value.trim();
+  if (!text) return;
+  localStorage.setItem('comment-author', name);
+  const comments = getComments();
+  if (!comments[sectionId]) comments[sectionId] = [];
+  comments[sectionId].push({
+    author: name,
+    text: text,
+    date: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'})
+  });
+  saveComments(comments);
+  form.querySelector('.comment-text').value = '';
+  renderComments(sectionId);
+}
+
+function deleteComment(sectionId, index) {
+  const comments = getComments();
+  if (comments[sectionId]) {
+    comments[sectionId].splice(index, 1);
+    saveComments(comments);
+    renderComments(sectionId);
+  }
+}
+
+function exportComments() {
+  const comments = getComments();
+  let text = 'הערות — מדריך אסטרטגיית AI — Philips Haifa OPS\n';
+  text += '='.repeat(50) + '\n\n';
+  let hasComments = false;
+  for (const [sectionId, items] of Object.entries(comments)) {
+    if (!items.length) continue;
+    hasComments = true;
+    const sectionEl = document.getElementById(sectionId);
+    const title = sectionEl ? sectionEl.querySelector('h2').textContent : sectionId;
+    text += `## ${title}\n`;
+    items.forEach(c => {
+      text += `[${c.date}] ${c.author}: ${c.text}\n`;
+    });
+    text += '\n';
+  }
+  if (!hasComments) { alert('אין הערות לייצוא'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    alert('הערות הועתקו ללוח (clipboard)');
+  }).catch(() => {
+    const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'ai-strategy-comments.txt';
+    a.click(); URL.revokeObjectURL(url);
+  });
+}
+</script>
+</body>
+</html>
