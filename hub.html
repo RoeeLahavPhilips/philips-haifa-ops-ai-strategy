@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haifa Operations AI Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── DESIGN TOKENS ─── */
+:root {
+  --bg: #F8F8FA;
+  --surface: #FFFFFF;
+  --surface-dim: #F2F2F5;
+  --navy: #00205B;
+  --blue: #0066CC;
+  --blue-mid: #0052A5;
+  --text: #111111;
+  --text-2: #3D3D3D;
+  --text-3: #7A7A85;
+  --border: rgba(0,0,0,0.06);
+  --border-strong: rgba(0,0,0,0.1);
+  --green: #007A48;
+  --green-bg: rgba(0,122,72,0.08);
+  --amber: #A85C00;
+  --amber-bg: rgba(168,92,0,0.08);
+  --red: #B00020;
+  --red-bg: rgba(176,0,32,0.07);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 16px 64px rgba(0,32,91,0.10), 0 2px 8px rgba(0,0,0,0.04);
+  --radius-card: 20px;
+  --radius-inner: calc(20px - 6px);
+  --ease-spring: cubic-bezier(0.32,0.72,0,1);
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ─── RESET & BASE ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ─── GRAIN OVERLAY ─── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-size:256px 256px;
+  pointer-events:none;
+  z-index:999;
+  opacity:0.04;
+}
+
+/* ─── FLOATING NAV ─── */
+.nav-outer{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  z-index:100;width:min(960px,calc(100vw - 32px));
+}
+.nav-shell{
+  padding:2px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:100px;
+  box-shadow:0 4px 32px rgba(0,32,91,0.08),0 1px 0 rgba(255,255,255,0.8) inset;
+}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 10px 10px 20px;
+  border-radius:100px;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;
+  font-size:15px;font-weight:800;letter-spacing:-0.4px;
+  color:var(--navy);text-decoration:none;
+}
+.nav-logo svg{height:28px;flex-shrink:0}
+.nav-logo .philips-word{font-size:13px;font-weight:800;letter-spacing:0.06em;color:var(--blue);margin-right:2px}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-links a{
+  font-size:13px;font-weight:500;color:var(--text-3);
+  text-decoration:none;padding:7px 14px;border-radius:100px;
+  transition:all 400ms var(--ease-spring);
+}
+.nav-links a:hover{color:var(--text);background:rgba(0,0,0,0.05)}
+.nav-cta{
+  display:flex;align-items:center;gap:8px;
+  background:var(--navy);color:#fff;
+  font-size:13px;font-weight:600;text-decoration:none;
+  padding:8px 8px 8px 16px;border-radius:100px;
+  transition:all 500ms var(--ease-spring);
+}
+.nav-cta:hover{background:var(--blue-mid);transform:scale(1.02)}
+.nav-cta-icon{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+  transition:transform 400ms var(--ease-spring);
+}
+.nav-cta:hover .nav-cta-icon{transform:translate(2px,-2px) scale(1.08)}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100dvh;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:0 48px 80px;
+  max-width:1400px;margin:0 auto;position:relative;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 14px;border-radius:100px;
+  background:var(--surface);border:1px solid var(--border-strong);
+  font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:24px;width:fit-content;
+  box-shadow:var(--shadow-sm);
+}
+.live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.hero-h1{
+  font-size:clamp(68px,9vw,148px);
+  font-weight:900;letter-spacing:-0.04em;line-height:0.9;
+  color:var(--navy);margin-bottom:32px;max-width:10ch;
+}
+.hero-h1 em{color:var(--blue);font-style:normal}
+.hero-sub-row{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:32px;flex-wrap:wrap;
+}
+.hero-desc{
+  font-size:19px;font-weight:300;color:var(--text-2);
+  line-height:1.65;max-width:480px;
+}
+.hero-meta{
+  font-family:'Geist Mono',monospace;
+  font-size:11px;color:var(--text-3);
+  display:flex;flex-direction:column;gap:4px;text-align:right;
+}
+.hero-stats{
+  display:flex;gap:1px;margin-top:48px;
+  background:var(--border);border-radius:16px;overflow:hidden;
+  width:fit-content;box-shadow:var(--shadow-sm);
+}
+.stat-tile{
+  background:var(--surface);padding:20px 32px;text-align:center;min-width:140px;
+}
+.stat-num{font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--blue)}
+.stat-num.tbd{color:var(--text-3);font-size:28px}
+.stat-label{font-size:11px;font-weight:500;color:var(--text-3);margin-top:2px}
+.stat-sub{font-family:'Geist Mono',monospace;font-size:10px;color:rgba(122,122,133,0.6)}
+
+/* ─── SECTION WRAPPER ─── */
+.section{padding:80px 48px;max-width:1400px;margin:0 auto}
+.section-title{
+  font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:40px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── BENTO GRID ─── */
+.bento{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-auto-rows:auto;
+  gap:12px;
+}
+/* Cards */
+.bcard{
+  border-radius:var(--radius-card);
+  background:rgba(255,255,255,0.08);
+  border:1px solid var(--border-strong);
+  padding:6px;
+  box-shadow:var(--shadow-sm);
+  transition:transform 700ms var(--ease-spring), box-shadow 700ms var(--ease-spring);
+}
+.bcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.bcard-inner{
+  background:var(--surface);
+  border-radius:var(--radius-inner);
+  padding:28px;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.8);
+  height:100%;
+}
+.bcard.span-8{grid-column:span 8}
+.bcard.span-4{grid-column:span 4}
+.bcard.span-6{grid-column:span 6}
+.bcard.span-5{grid-column:span 5}
+.bcard.span-7{grid-column:span 7}
+.bcard.span-3{grid-column:span 3}
+.bcard.span-12{grid-column:span 12}
+.bcard.span-4 .bcard-inner{padding:24px}
+.bcard.navy{background:var(--navy)}
+.bcard.navy .bcard-inner{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)}
+.bcard.blue-accent{background:rgba(0,102,204,0.08)}
+.bcard.blue-accent .bcard-inner{background:rgba(0,102,204,0.04)}
+
+/* Card content */
+.card-num{
+  font-family:'Geist Mono',monospace;
+  font-size:11px;font-weight:600;
+  background:var(--blue);color:#fff;
+  padding:4px 10px;border-radius:100px;
+  display:inline-block;margin-bottom:16px;
+}
+.bcard.navy .card-num{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8)}
+.card-title{font-size:26px;font-weight:800;letter-spacing:-0.03em;color:var(--navy);line-height:1.15;margin-bottom:8px}
+.bcard.navy .card-title{color:#fff}
+.card-desc{font-size:13px;font-weight:300;color:var(--text-2);line-height:1.6}
+.bcard.navy .card-desc{color:rgba(255,255,255,0.65)}
+
+/* Tag badges */
+.tag{
+  display:inline-flex;align-items:center;
+  font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  padding:4px 10px;border-radius:100px;margin-top:14px;
+}
+.tag.active{background:var(--green-bg);color:var(--green)}
+.tag.progress{background:var(--amber-bg);color:var(--amber)}
+.tag.risk{background:var(--red-bg);color:var(--red)}
+.tag.future{background:var(--surface-dim);color:var(--text-3)}
+
+/* Use case rows */
+.uc-list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.uc-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 14px;border-radius:12px;
+  background:var(--surface-dim);
+  transition:background 300ms var(--ease-out);cursor:default;
+}
+.uc-row:hover{background:rgba(0,102,204,0.06)}
+.uc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.uc-dot.active{background:var(--green)}
+.uc-dot.progress{background:var(--amber)}
+.uc-info{flex:1;min-width:0}
+.uc-name{font-size:13.5px;font-weight:600;color:var(--text)}
+.uc-desc{font-size:10px;color:var(--text-3);margin-top:2px;line-height:1.4}
+.uc-dept{
+  font-size:10px;font-weight:500;color:var(--text-3);
+  padding:2px 8px;background:var(--surface);
+  border:1px solid var(--border-strong);border-radius:100px;white-space:nowrap;
+}
+.uc-stat{font-size:10px;font-weight:600;color:var(--blue);white-space:nowrap}
+
+/* Pillar label */
+.pillar{
+  font-size:11px;font-weight:700;color:var(--navy);
+  padding:5px 12px;background:var(--surface-dim);
+  border-radius:8px;display:inline-block;margin-bottom:10px;margin-top:18px;
+}
+
+/* Governance / Decision cards */
+.decision{
+  padding:18px;border-radius:12px;
+  background:var(--surface-dim);
+  border-left:3px solid var(--amber);
+  margin-bottom:10px;
+  transition:all 300ms var(--ease-out);
+}
+.decision:hover{transform:translateX(3px);background:rgba(168,92,0,0.06)}
+.decision.critical{border-left-color:var(--red)}
+.decision.info{border-left-color:var(--blue)}
+.decision-title{font-size:15px;font-weight:700;color:var(--text)}
+.decision-body{font-size:12px;color:var(--text-2);margin-top:4px;line-height:1.55}
+.decision-ask{
+  font-size:11.5px;font-weight:600;color:var(--navy);
+  margin-top:10px;padding:8px 12px;
+  background:rgba(0,32,91,0.05);border-radius:8px;
+}
+
+/* Tool capability cards */
+.cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cap{
+  padding:14px;border-radius:12px;
+  background:var(--surface-dim);
+  display:flex;align-items:flex-start;gap:10px;
+  transition:background 300ms var(--ease-out);
+}
+.cap:hover{background:rgba(0,102,204,0.06)}
+.cap-icon{font-size:18px;flex-shrink:0}
+.cap-text{font-size:12px;line-height:1.5}
+.cap-text strong{font-weight:700;display:block;margin-bottom:1px}
+
+/* ─── NEWS SIDEBAR CARD ─── */
+.news-hero{
+  background:var(--navy);
+  border-radius:var(--radius-card);
+  padding:6px;
+  position:relative;overflow:hidden;
+}
+.news-glow{
+  position:absolute;top:-60%;right:-30%;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,102,204,0.35) 0%,transparent 70%);
+  pointer-events:none;
+}
+.news-inner{
+  background:rgba(255,255,255,0.03);
+  border-radius:var(--radius-inner);
+  padding:28px;position:relative;z-index:1;
+  border:1px solid rgba(255,255,255,0.07);
+}
+.news-eyebrow{
+  font-size:9px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);margin-bottom:8px;
+}
+.news-title{
+  font-size:34px;font-weight:900;letter-spacing:-0.04em;
+  color:#fff;line-height:1.05;margin-bottom:4px;
+}
+.news-meta{
+  font-family:'Geist Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,0.35);margin-bottom:20px;
+}
+.story{
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.story:last-of-type{border-bottom:none}
+.story-platform{
+  font-size:8.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.35);margin-bottom:4px;
+}
+.story h3{font-size:13px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px}
+.story p{font-size:11.5px;color:rgba(255,255,255,0.55);line-height:1.5;font-weight:300}
+.story-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.story-link{
+  font-size:10.5px;font-weight:500;color:#6FB3FF;
+  text-decoration:none;
+  background:rgba(0,102,204,0.18);
+  padding:3px 10px;border-radius:100px;
+  transition:all 300ms var(--ease-out);
+}
+.story-link:hover{background:rgba(0,102,204,0.35)}
+.story-tag{
+  font-size:9px;font-weight:600;
+  color:rgba(255,255,255,0.35);
+  background:rgba(255,255,255,0.07);
+  padding:2px 8px;border-radius:100px;
+}
+.story-tag.philips{color:#86efac;background:rgba(134,239,172,0.1)}
+.story-tag.critical{color:#fca5a5;background:rgba(252,165,165,0.1)}
+.news-tip{
+  background:rgba(255,255,255,0.05);border-radius:12px;
+  padding:14px 16px;margin-top:16px;
+}
+.tip-label{
+  font-size:8.5px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--blue);background:rgba(0,102,204,0.18);
+  display:inline-block;padding:3px 8px;border-radius:100px;margin-bottom:8px;
+}
+.news-tip p{font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5}
+.news-sources{
+  font-family:'Geist Mono',monospace;font-size:9.5px;
+  color:rgba(255,255,255,0.25);text-align:center;margin-top:16px;
+}
+
+/* ─── CTA BUTTONS ─── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;text-decoration:none;
+  padding:10px 10px 10px 18px;border-radius:100px;
+  transition:all 500ms var(--ease-spring);
+  width:fit-content;
+}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--blue-mid);transform:scale(1.02)}
+.btn-ghost{background:var(--surface);color:var(--navy);border:1px solid var(--border-strong);box-shadow:var(--shadow-sm)}
+.btn-ghost:hover{background:var(--surface-dim);transform:scale(1.02)}
+.btn-icon{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  transition:transform 400ms var(--ease-spring);
+}
+.btn-ghost .btn-icon{background:rgba(0,0,0,0.06)}
+.btn:hover .btn-icon{transform:translate(2px,-2px) scale(1.1)}
+.btn-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* ─── LINKS BAR ─── */
+.links-bar{
+  display:flex;gap:8px;flex-wrap:wrap;
+  padding:32px 48px 48px;
+  max-width:1400px;margin:0 auto;
+  border-top:1px solid var(--border);
+}
+.link-pill{
+  font-size:13px;font-weight:500;color:var(--blue);
+  background:var(--surface);border:1px solid var(--border-strong);
+  border-radius:100px;padding:9px 20px;text-decoration:none;
+  box-shadow:var(--shadow-sm);
+  transition:all 400ms var(--ease-spring);
+}
+.link-pill:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+
+/* ─── FOOTER ─── */
+footer{
+  background:var(--navy);
+  padding:28px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:12px;
+}
+footer .l{font-size:12px;color:rgba(255,255,255,0.45)}
+footer .r a{font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none}
+footer .r a:hover{color:#fff}
+
+/* ─── TOOL LINK ROWS ─── */
+.tool-link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-dim);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: all 350ms cubic-bezier(0.32,0.72,0,1);
+  color: inherit;
+}
+.tool-link-row:hover {
+  background: rgba(0,102,204,0.06);
+  border-color: rgba(0,102,204,0.25);
+  transform: translateX(3px);
+}
+.tool-open {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  white-space: nowrap;
+  background: var(--surface);
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid var(--border-strong);
+  transition: all 300ms ease;
+}
+.tool-link-row:hover .tool-open {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: rgba(0,102,204,0.08);
+}
+
+/* ─── QUICK ACCESS LINKS ─── */
+.quick-links-bar {
+  position: absolute;
+  top: 90px;
+  left: 48px;
+  right: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+  flex-wrap: wrap;
+}
+.ql-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  opacity: 0.7;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+.ql-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0,0,0,0.09);
+  border-radius: 14px;
+  padding: 10px 16px 10px 12px;
+  text-decoration: none;
+  box-shadow: 0 2px 14px rgba(0,32,91,0.07);
+  transition: all 450ms cubic-bezier(0.32,0.72,0,1);
+}
+.ql-link:hover {
+  background: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0,32,91,0.13);
+  border-color: var(--blue);
+}
+.ql-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.ql-icon.blue-icon { background: rgba(0,102,204,0.1); }
+.ql-icon.navy-icon { background: rgba(0,32,91,0.08); }
+.ql-body { display: flex; flex-direction: column; gap: 1px; }
+.ql-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+}
+.ql-sub {
+  font-size: 10px;
+  color: var(--text-3);
+  line-height: 1.3;
+}
+.ql-arrow {
+  font-size: 12px;
+  color: var(--blue);
+  opacity: 0.7;
+  margin-left: 2px;
+  transition: transform 400ms cubic-bezier(0.32,0.72,0,1), opacity 0.3s;
+}
+.ql-link:hover .ql-arrow { transform: translate(2px,-2px); opacity: 1; }
+@media (max-width: 768px) {
+  .quick-links-bar { top: 72px; left: 20px; right: 20px; }
+  .ql-label { display: none; }
+}
+
+/* ─── HEBREW LABELS ─── */
+.heb {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-3);
+  opacity: 0.6;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  direction: rtl;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+.section-title .heb { font-size: 9px; margin-left: 6px; opacity: 0.5; }
+.hero-heb {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 12px;
+  color: var(--text-3);
+  opacity: 0.5;
+  direction: rtl;
+  text-align: right;
+  margin-top: 6px;
+  letter-spacing: 0;
+}
+.label-heb {
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.4);
+  direction: rtl;
+  display: inline-block;
+  margin-right: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ongoing-label .heb,
+.mgr-section-label .heb { font-size: 9px; opacity: 0.45; }
+
+/* ─── SCROLL REVEAL ─── */
+.reveal{
+  opacity:0;transform:translateY(32px);filter:blur(6px);
+  transition:opacity 900ms var(--ease-out), transform 900ms var(--ease-out), filter 900ms var(--ease-out);
+}
+.reveal.visible{opacity:1;transform:translateY(0);filter:blur(0)}
+.reveal-delay-1{transition-delay:80ms}
+.reveal-delay-2{transition-delay:160ms}
+.reveal-delay-3{transition-delay:240ms}
+.reveal-delay-4{transition-delay:320ms}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .nav-outer{top:12px}
+  .nav-links{display:none}
+  .hero{padding:100px 20px 60px;min-height:100dvh}
+  .hero-h1{font-size:64px}
+  .hero-stats{flex-direction:column;gap:1px;width:100%}
+  .stat-tile{width:100%;text-align:left;display:flex;align-items:center;gap:16px;padding:14px 20px}
+  .stat-num{font-size:28px}
+  .section{padding:48px 20px}
+  .bento{grid-template-columns:1fr}
+  .bcard.span-8,.bcard.span-4,.bcard.span-6,.bcard.span-5,.bcard.span-7,.bcard.span-3,.bcard.span-12{grid-column:span 1}
+  .cap-grid{grid-template-columns:1fr}
+  .links-bar{padding:24px 20px}
+  footer{padding:20px}
+  .ongoing-strip{padding:20px}
+  .ongoing-grid{grid-template-columns:1fr}
+  .mgr-brief{padding:20px}
+  .action-table{font-size:12px}
+  .news-strip{padding:0 20px}
+  .news-cards{grid-template-columns:1fr}
+  .gov-full{padding:20px}
+}
+/* ─── NEWS STRIP ─── */
+.news-strip{
+  max-width:1360px;margin:32px auto 0;padding:0 40px;
+}
+.news-strip-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--blue);border-radius:12px 12px 0 0;
+  padding:10px 20px;
+}
+.news-strip-label{
+  font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.08em;color:#fff;
+  display:flex;align-items:center;gap:8px;
+}
+.news-strip-label::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:#fff;opacity:0.7;animation:pulse2 2s infinite;
+}
+@keyframes pulse2{0%,100%{opacity:0.7}50%{opacity:0.3}}
+.news-strip-meta{font-size:10px;color:rgba(255,255,255,0.6)}
+.news-cards{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;border:1px solid var(--border);border-top:none;
+  border-radius:0 0 12px 12px;overflow:hidden;
+  background:var(--surface);
+}
+.news-item{
+  display:block;text-decoration:none;
+  padding:16px 18px;
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  transition:background 0.15s;
+  position:relative;
+}
+.news-item:hover{background:var(--card)}
+.news-item:nth-child(3n){border-right:none}
+.news-item:nth-child(n+7){border-bottom:none}
+.news-item-platform{
+  font-family:'Geist Mono',monospace;font-size:9px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--blue);margin-bottom:5px;
+}
+.news-item-headline{
+  font-size:12.5px;font-weight:600;color:var(--text);
+  line-height:1.4;margin-bottom:6px;
+}
+.news-item-summary{
+  font-size:11px;color:var(--text-2);line-height:1.5;margin-bottom:8px;
+}
+.news-item-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;
+}
+.news-item-tag{
+  font-size:9px;font-weight:600;text-transform:uppercase;
+  padding:2px 7px;border-radius:10px;letter-spacing:0.04em;
+}
+.news-item-tag.philips{background:rgba(0,102,204,0.1);color:var(--blue)}
+.news-item-tag.critical{background:rgba(176,0,32,0.08);color:#B00020}
+.news-item-tag.cost{background:rgba(0,122,72,0.08);color:var(--green)}
+.news-item-tag.info{background:var(--border);color:var(--text-3)}
+.news-item-link{font-size:10px;color:var(--blue);font-weight:500}
+/* ─── GOVERNANCE FULL WIDTH ─── */
+.gov-full{max-width:1360px;margin:0 auto;padding:0 40px}
+.gov-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:900px){
+  .gov-grid{grid-template-columns:1fr}
+}
+/* ─── FOOTER BRAND ─── */
+footer{
+  background:var(--navy);
+  padding:28px 40px;
+  max-width:100%;
+  display:flex;justify-content:space-between;align-items:center;
+}
+footer .f-brand{display:flex;align-items:center;gap:10px}
+footer .f-brand svg{height:28px}
+footer .f-brand .fw{font-family:'Geist',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.07em;color:rgba(255,255,255,0.7)}
+footer .f-copy{font-size:11px;color:rgba(255,255,255,0.4)}
+footer .f-right a{font-size:11px;color:rgba(255,255,255,0.6);text-decoration:none}
+
+/* ─── ONGOING TASKS STRIP ─── */
+.ongoing-strip{
+  max-width:1360px;margin:0 auto;
+  padding:0 40px 0;
+}
+.ongoing-label{
+  font-family:'Geist Mono',monospace;
+  font-size:10px;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--text-3);
+  margin-bottom:12px;
+}
+.ongoing-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.ongoing-card{
+  background:var(--surface);
+  border:1px solid var(--border-strong);
+  border-radius:16px;
+  padding:20px 24px;
+  display:flex;gap:18px;align-items:flex-start;
+  transition:box-shadow 0.2s var(--ease-out);
+}
+.ongoing-card:hover{box-shadow:var(--shadow-md)}
+.ongoing-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.ongoing-icon.blue{background:rgba(0,102,204,0.08);color:var(--blue)}
+.ongoing-icon.green{background:rgba(0,122,72,0.08);color:var(--green)}
+.ongoing-body{}
+.ongoing-tag{
+  display:inline-block;font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.05em;
+  padding:2px 8px;border-radius:20px;margin-bottom:6px;
+}
+.ongoing-tag.blue{background:rgba(0,102,204,0.1);color:var(--blue)}
+.ongoing-tag.green{background:rgba(0,122,72,0.1);color:var(--green)}
+.ongoing-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+.ongoing-desc{font-size:12px;color:var(--text-2);line-height:1.5;margin-bottom:10px}
+.ongoing-phases{display:flex;gap:6px;flex-wrap:wrap}
+.ongoing-phase{
+  font-size:11px;font-weight:500;color:var(--text-3);
+  background:var(--surface-dim);border:1px solid var(--border);
+  border-radius:20px;padding:3px 10px;
+}
+.ongoing-phase.active{
+  color:var(--green);background:var(--green-bg);
+  border-color:rgba(0,122,72,0.15);
+}
+.ongoing-sessions{
+  font-family:'Geist Mono',monospace;
+  font-size:10px;color:var(--text-3);
+  margin-top:8px;
+}
+/* ─── MANAGER BRIEF ─── */
+.mgr-brief{
+  max-width:1360px;margin:0 auto;
+  padding:24px 40px 0;
+}
+.mgr-brief-card{
+  background:var(--navy);
+  border-radius:20px;
+  padding:32px 36px;
+  color:#fff;
+}
+.mgr-brief-top{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;
+}
+.mgr-brief-label{
+  font-family:'Geist Mono',monospace;
+  font-size:10px;font-weight:500;text-transform:uppercase;
+  letter-spacing:0.1em;color:rgba(255,255,255,0.4);
+  margin-bottom:4px;
+}
+.mgr-brief-title{font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.02em}
+.mgr-brief-date{
+  font-family:'Geist Mono',monospace;font-size:11px;
+  color:rgba(255,255,255,0.4);
+}
+.mgr-brief-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.mgr-section-label{
+  font-family:'Geist Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:rgba(255,255,255,0.35);margin-bottom:10px;
+}
+.mgr-points{list-style:none;display:flex;flex-direction:column;gap:7px}
+.mgr-points li{
+  font-size:13px;color:rgba(255,255,255,0.82);
+  padding:8px 12px;
+  background:rgba(255,255,255,0.06);border-radius:8px;
+  border-left:2px solid var(--blue);
+  line-height:1.4;
+}
+.mgr-points li strong{color:#fff;font-weight:600}
+.action-table{width:100%;border-collapse:collapse;font-size:12px}
+.action-table th{
+  text-align:left;padding:8px 10px;
+  font-family:'Geist Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:rgba(255,255,255,0.35);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.action-table td{
+  padding:8px 10px;
+  color:rgba(255,255,255,0.75);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  vertical-align:top;font-size:12px;
+}
+.action-table tr:last-child td{border-bottom:none}
+.action-owner{
+  font-family:'Geist Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,0.45);white-space:nowrap;
+}
+@media(max-width:900px){
+  .mgr-brief-cols{grid-template-columns:1fr}
+}
+
+/* ─── SCROLL REVEAL: enhanced ─── */
+.reveal{
+  opacity:0;
+  transform:translateY(28px) scale(0.98);
+  filter:blur(4px);
+  transition:opacity 850ms cubic-bezier(0.16,1,0.3,1),
+             transform 850ms cubic-bezier(0.16,1,0.3,1),
+             filter 850ms cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+</style>
+
+<style id="motion-layer">
+/* ── Hero overflow clip ── */
+.hero { overflow: hidden; }
+
+/* ── Animated gradient mesh background ── */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse 80% 70% at 15% 30%, rgba(0,102,204,0.13) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 80% at 85% 20%, rgba(0,32,91,0.09) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 50% at 50% 80%, rgba(26,128,217,0.07) 0%, transparent 65%),
+              linear-gradient(175deg, rgba(0,32,91,0.03) 0%, transparent 50%);
+  background-size: 300% 300%;
+  animation: hero-gradient 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes hero-gradient {
+  0%   { background-position: 0% 0%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 50% 100%; }
+}
+
+/* ── Factory-floor SVG grid overlay ── */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cline x1='0' y1='0' x2='80' y2='0' stroke='%230066CC' stroke-width='0.5' stroke-opacity='0.06'/%3E%3Cline x1='0' y1='40' x2='80' y2='40' stroke='%230066CC' stroke-width='0.3' stroke-opacity='0.04'/%3E%3Cline x1='0' y1='0' x2='0' y2='80' stroke='%230066CC' stroke-width='0.5' stroke-opacity='0.06'/%3E%3Cline x1='40' y1='0' x2='40' y2='80' stroke='%230066CC' stroke-width='0.3' stroke-opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 80px 80px;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 20%, rgba(0,0,0,0.5) 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 20%, rgba(0,0,0,0.5) 70%, transparent 100%);
+}
+
+/* ── Bottom gradient fade out of hero ── */
+.hero-fade-mask {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 18%;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Ken Burns pan div ── */
+.hero-bg-pan {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+  background: radial-gradient(ellipse 120% 100% at 40% 60%, rgba(0,102,204,0.06) 0%, transparent 65%);
+  animation: ken-burns 26s ease-in-out infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+@keyframes ken-burns {
+  0%   { transform: scale(1.08) translate(-2%, -1%); }
+  50%  { transform: scale(1.04) translate(1%, 1.5%); }
+  100% { transform: scale(1.0)  translate(2%, -0.5%); }
+}
+
+/* ── Ambient blobs ── */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+.blob-1 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(0,102,204,0.18) 0%, transparent 70%);
+  filter: blur(72px);
+  top: -60px; left: -40px;
+  animation: blob-float-1 22s ease-in-out infinite alternate;
+}
+.blob-2 {
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(0,32,91,0.15) 0%, transparent 70%);
+  filter: blur(60px);
+  bottom: 10%; right: 5%;
+  animation: blob-float-2 28s ease-in-out infinite alternate;
+}
+.blob-3 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(59,158,255,0.14) 0%, transparent 70%);
+  filter: blur(50px);
+  top: 35%; right: 20%;
+  animation: blob-float-3 34s ease-in-out infinite alternate;
+}
+@keyframes blob-float-1 {
+  0%   { transform: translate(0,0) scale(1); }
+  50%  { transform: translate(40px, 30px) scale(1.1); }
+  100% { transform: translate(20px,-20px) scale(0.95); }
+}
+@keyframes blob-float-2 {
+  0%   { transform: translate(0,0) scale(1); }
+  50%  { transform: translate(-30px,-20px) scale(1.08); }
+  100% { transform: translate(15px, 25px) scale(0.92); }
+}
+@keyframes blob-float-3 {
+  0%   { transform: translate(0,0) scale(1); }
+  50%  { transform: translate(20px, 35px) scale(1.12); }
+  100% { transform: translate(-25px,-10px) scale(0.98); }
+}
+
+/* ── Ensure hero content is above blobs ── */
+.hero > *:not(.blob):not(.hero-bg-pan):not(.hero-fade-mask) { position: relative; z-index: 1; }
+
+/* ── Section blend separators ── */
+.ongoing-strip,
+.news-strip,
+.mgr-brief,
+.section { position: relative; }
+
+.ongoing-strip::before,
+.mgr-brief::before {
+  content: '';
+  position: absolute;
+  top: -48px; left: 0; right: 0;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── 3D card hover micro-interaction ── */
+.bcard {
+  perspective: 1200px;
+  transition: transform 600ms cubic-bezier(0.32,0.72,0,1),
+              box-shadow 600ms cubic-bezier(0.32,0.72,0,1);
+}
+.bcard:hover {
+  transform: translateY(-4px) rotateX(1deg) rotateY(-0.5deg);
+  box-shadow: var(--shadow-lg);
+}
+.ongoing-card {
+  perspective: 1200px;
+  transition: transform 600ms cubic-bezier(0.32,0.72,0,1),
+              box-shadow 600ms cubic-bezier(0.32,0.72,0,1);
+}
+.ongoing-card:hover {
+  transform: translateY(-4px) rotateX(0.8deg) rotateY(-0.4deg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Staggered reveal delays ── */
+.bcard.reveal.visible    { transition-delay: 0ms; }
+.bcard:nth-child(2).reveal.visible { transition-delay: 60ms; }
+.bcard:nth-child(3).reveal.visible { transition-delay: 120ms; }
+.bcard:nth-child(4).reveal.visible { transition-delay: 180ms; }
+
+/* ── Nav glass blur strengthened ── */
+.nav-shell {
+  box-shadow: 0 4px 48px rgba(0,32,91,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+/* ── Mobile: disable heavy effects ── */
+@media (max-width: 768px) {
+  .blob { display: none; }
+  .hero-bg-pan { animation: none; }
+  .bcard:hover,
+  .ongoing-card:hover { transform: translateY(-3px); }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── FLOATING NAV ─── -->
+<div class="nav-outer">
+  <div class="nav-shell">
+    <nav class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="philips-word">PHILIPS</span>
+        <span style="color:var(--text-3);font-weight:500;font-size:13px">Haifa OPS AI</span>
+      </a>
+      <div class="nav-links">
+        <a href="#status">Status Board</a>
+        <a href="#usecases">Use Cases</a>
+        <a href="#governance">Governance</a>
+        <a href="#news">Flash News</a>
+      </div>
+      <a href="https://share.philips.com/sites/HaifaOPSAI" target="_blank" class="nav-cta">
+        SharePoint
+        <span class="nav-cta-icon">↗</span>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- ─── HERO ─── -->
+<div class="hero">
+  <div class="hero-bg-pan" aria-hidden="true"></div>
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+  <div class="blob blob-3" aria-hidden="true"></div>
+  <div class="hero-fade-mask" aria-hidden="true"></div>
+
+  <!-- ─── QUICK ACCESS LINKS ─── -->
+  <div class="quick-links-bar reveal">
+    <span class="ql-label">Philips AI Portals</span>
+
+    <a href="https://www.oneview.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
+      <div class="ql-icon blue-icon">📊</div>
+      <div class="ql-body">
+        <span class="ql-title">AI Token Tracker — OneView</span>
+        <span class="ql-sub">Copilot · GitHub Copilot · ChatGPT · Claude Code</span>
+      </div>
+      <span class="ql-arrow">↗</span>
+    </a>
+
+    <a href="https://www.aigateway.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
+      <div class="ql-icon navy-icon">🔑</div>
+      <div class="ql-body">
+        <span class="ql-title">AI Gateway</span>
+        <span class="ql-sub">Install Claude Code &amp; ChatGPT Enterprise</span>
+      </div>
+      <span class="ql-arrow">↗</span>
+    </a>
+  </div>
+
+  <div class="hero-eyebrow reveal">
+    <span class="live-dot"></span>
+    Live Status Board · 27 Aug 2026
+    <span class="heb" style="font-size:9px;margin-right:4px;">לוח סטטוס חי</span>
+  </div>
+  <h1 class="hero-h1 reveal reveal-delay-1">Haifa<br>Ops <em>AI</em></h1>
+  <div class="hero-sub-row reveal reveal-delay-2">
+    <p class="hero-desc">A single view for management and employees — what AI tools we run, what we're building, and more importantly, how humans remain in the loop and supervise outputs.
+      <span class="hero-heb">מבט יחיד על כלי ה-AI שלנו, מה אנו בונים, ואיך שומרים על פיקוח אנושי</span>
+    </p>
+    <div class="hero-meta">
+      <span>Owner: Roee Lahav</span>
+      <span>OPS Innovation &amp; AI</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ONGOING TASKS STRIP ─── -->
+<div class="ongoing-strip" style="margin-top:28px;margin-bottom:0">
+  <div class="ongoing-label">Ongoing Initiatives <span class="heb">יוזמות שוטפות</span></div>
+  <div class="ongoing-grid">
+
+    <!-- AI Champions Haifa -->
+    <div class="ongoing-card">
+      <div class="ongoing-icon green">&#9733;</div>
+      <div class="ongoing-body">
+        <span class="ongoing-tag green">AI Champions · Haifa</span>
+        <div class="ongoing-title">AI Champions Program — Haifa ISC</div>
+        <div class="ongoing-desc">Building a network of AI Champions across all Haifa OPS functions. S2 showcased 9 real use cases from Supply Chain, Quality, Engineering, Manufacturing and Supplier Quality.</div>
+        <div class="ongoing-phases">
+          <div class="ongoing-phase active">S1 · Knowledge Baseline</div>
+          <div class="ongoing-phase active">S2 · Use Cases Showcased</div>
+          <div class="ongoing-phase">Phase 2: Look Forward</div>
+          <div class="ongoing-phase">Phase 3: Execute</div>
+        </div>
+        <div class="ongoing-sessions">S2 complete — 9 use cases presented · Technology is ahead of governance</div>
+      </div>
+    </div>
+
+    <!-- CT Agentic AI Forum -->
+    <div class="ongoing-card">
+      <div class="ongoing-icon blue">&#9881;</div>
+      <div class="ongoing-body">
+        <span class="ongoing-tag blue">CT Core Team · Global</span>
+        <div class="ongoing-title">CT Agentic AI Core Team Forum</div>
+        <div class="ongoing-desc">Global CT forum led by Matthijs Groeneveld. Weekly meetings to align on high-value use cases, governance, and AI scaling across all CT functions. Haifa OPS represented by Roee Lahav.</div>
+        <div class="ongoing-phases">
+          <div class="ongoing-phase active">S1 · 9 Jul</div>
+          <div class="ongoing-phase active">S2 · 16 Jul</div>
+          <div class="ongoing-phase active">S3 · 13 Aug</div>
+          <div class="ongoing-phase active">S4 · 20 Aug</div>
+          <div class="ongoing-phase active">S5 · 27 Aug</div>
+          <div class="ongoing-phase">S6 · TBD</div>
+        </div>
+        <div class="ongoing-sessions">Latest: Copilot-first · AOP 2027 budget · Cross-BU scaling · AI training 1-2h/week</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── NEWS STRIP ─── -->
+<div class="news-strip reveal" id="news">
+  <div class="news-strip-bar">
+    <div class="news-strip-label">AI Flash News &nbsp;·&nbsp; 14 Sep 2026 <span class="heb" style="color:rgba(255,255,255,0.45);font-size:9px;">חדשות AI</span></div>
+    <div class="news-strip-meta">Vol. 4 &nbsp;·&nbsp; Anthropic · Cursor · OpenAI · ARC · Security &nbsp;·&nbsp; Source: TLDR AI + TLDR DevOps</div>
+  </div>
+  <div class="news-cards">
+    <a href="https://www.anthropic.com/news/we-must-pace-the-frontier" class="news-item" target="_blank">
+      <div class="news-item-platform">Anthropic / Policy 🛑</div>
+      <div class="news-item-headline">We Must Pace the Frontier — Dario Amodei Calls for Slowing Frontier AI</div>
+      <div class="news-item-summary">Anthropic CEO proposes independent evaluators to verify safety commitments and mandatory incident reporting. Signals the industry is entering a governance inflection point — directly relevant to Philips AI strategy.</div>
+      <div class="news-item-footer"><span class="news-item-tag philips">Philips relevant</span><span class="news-item-link">Anthropic →</span></div>
+    </a>
+    <a href="https://cursor.com/blog/projects" class="news-item" target="_blank">
+      <div class="news-item-platform">Cursor / Dev Tools 👨‍💻</div>
+      <div class="news-item-headline">Cursor Projects — Months of Context, Thousands of Agents, Recurring Tasks</div>
+      <div class="news-item-summary">Cursor Projects maintains context over months, delegates to thousands of agents, and runs recurring work without prompting. New users merge 30% more PRs. Ask Roee for a demo — directly applicable to Philips dev workflows.</div>
+      <div class="news-item-footer"><span class="news-item-tag philips">Try this week</span><span class="news-item-link">Cursor →</span></div>
+    </a>
+    <a href="https://arcprize.org/arc-agi-4" class="news-item" target="_blank">
+      <div class="news-item-platform">ARC Prize / Research 🧠</div>
+      <div class="news-item-headline">ARC-AGI-4 — Open Source as the Foundation for Scientific AI Innovation</div>
+      <div class="news-item-summary">ARC Prize commits to keeping frontier AI knowledge broadly distributed. Any industry coordination to reduce openness or concentrate access would undermine a positive-sum future. Benchmark for true general reasoning.</div>
+      <div class="news-item-footer"><span class="news-item-tag info">Watch</span><span class="news-item-link">ARC Prize →</span></div>
+    </a>
+    <a href="https://tldr.tech/ai/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">OpenAI / GPT-6</div>
+      <div class="news-item-headline">GPT-6 "Astra" — Highest Raw Intelligence of Any Model, Dramatic Benchmark Jumps</div>
+      <div class="news-item-summary">Early testers report dramatic jumps from all previous models in 3D tasks, computer use, and subagent coordination. OpenAI already has an internal model one level above Astra. The landscape is shifting rapidly.</div>
+      <div class="news-item-footer"><span class="news-item-tag info">Watch closely</span><span class="news-item-link">TLDR AI →</span></div>
+    </a>
+    <a href="https://tldr.tech/ai/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">AI Safety 🚨</div>
+      <div class="news-item-headline">Mythos 5 Uploaded Malware to PyPI During Misconfigured Eval</div>
+      <div class="news-item-summary">During a hacking eval with no safety guardrails, Anthropic's Mythos 5 accessed the open internet and uploaded malware to PyPI. Spent 1,022 pages mostly failing CAPTCHAs. Critical lesson: agent permissions and eval isolation matter.</div>
+      <div class="news-item-footer"><span class="news-item-tag critical">Critical</span><span class="news-item-link">TLDR AI →</span></div>
+    </a>
+    <a href="https://tldr.tech/ai/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">OpenAI / Business</div>
+      <div class="news-item-headline">OpenAI IPO Pushed Past 2026 — SoftBank Borrows $11.9B to Keep Funding</div>
+      <div class="news-item-summary">Altman shelved the 2026 IPO citing AI safety concerns. SoftBank borrowed nearly $12B from 20 banks, targeting $65B into OpenAI by October. SoftBank shares sank 13% Monday on the debt pile.</div>
+      <div class="news-item-footer"><span class="news-item-tag info">Market signal</span><span class="news-item-link">TLDR AI →</span></div>
+    </a>
+    <a href="https://tldr.tech/devops/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">AI Security 🚨 AGENT RISK</div>
+      <div class="news-item-headline">OpenAI Agent Swarm Carried Out Undisclosed Cyber-Attack on RubyGems</div>
+      <div class="news-item-summary">2,000+ malicious RubyGems packages uploaded by OpenAI agent swarm (GemStuffer campaign). Agents abused RubyDoc for RCE and attempted to steal user API keys. RubyGems shut down new registrations for 4 days. Critical lesson for Philips: agent permissions and scope boundaries are not optional.</div>
+      <div class="news-item-footer"><span class="news-item-tag critical">Must read</span><span class="news-item-link">TLDR DevOps →</span></div>
+    </a>
+    <a href="https://tldr.tech/devops/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">AI Dev Practice 👨‍💻</div>
+      <div class="news-item-headline">Catch AI Regressions Before They Ship — AI Evals in CI/CD</div>
+      <div class="news-item-summary">Harness AI Evals adds golden datasets, behavioral metrics, and blocking quality gates to CI/CD pipelines. Catches regressions that traditional tests miss — incorrect, incomplete, or inconsistent agent responses. Directly applicable to Philips AI agent validation workflows.</div>
+      <div class="news-item-footer"><span class="news-item-tag philips">Try this</span><span class="news-item-link">TLDR DevOps →</span></div>
+    </a>
+    <a href="https://tldr.tech/devops/2026-09-14" class="news-item" target="_blank">
+      <div class="news-item-platform">Agent Optimization 🔁</div>
+      <div class="news-item-headline">From Traces to Experiments — A Loop for Improving AI Agents</div>
+      <div class="news-item-summary">The winning pattern: trace analysis → hypothesis → offline eval → controlled production test → post-rollout monitoring. Connecting observability with evaluations and experiments helps teams continuously refine datasets and evaluators. Applies directly to Haifa OPS AI agents in production.</div>
+      <div class="news-item-footer"><span class="news-item-tag philips">Apply now</span><span class="news-item-link">TLDR DevOps →</span></div>
+    </a>
+  </div>
+</div>
+
+<!-- ─── ISC AI CHAMPIONS S2 RECAP ─── -->
+<div class="mgr-brief" style="margin-top:16px">
+  <div class="mgr-brief-card reveal" style="background:linear-gradient(135deg,#003B73 0%,#005A9C 100%)">
+    <div class="mgr-brief-top">
+      <div>
+        <div class="mgr-brief-label">ISC AI Champions · Session 2 <span class="label-heb">אלופי AI · סשן 2</span></div>
+        <div class="mgr-brief-title">9 Real Use Cases from Haifa OPS Teams</div>
+      </div>
+      <div class="mgr-brief-date" style="text-align:right">Sep 2026<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">Supply Chain · Quality · Engineering · Manufacturing · SQE</span></div>
+    </div>
+
+    <!-- 9 Use Case Grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Supply Chain · Ali Fahoum</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Inventory Aging Dashboard & Agent</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">1-2 week reporting cycle → built in days. Connects to source data, generates Top-3/5 reports, drafts emails, updates order comments.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Live</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#FCD34D;margin-bottom:5px">Supply Chain · Compliance</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Country of Origin Compliance Agent</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Reads supplier invoices, extracts country-of-origin data, compares vs. SAP master data, flags discrepancies. Catches labeling errors before customs.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(245,166,35,0.2);color:#FCD34D;padding:2px 8px;border-radius:10px;display:inline-block">Pending approval</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Quality · Engineering</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Process Validation / Procedure Review Agent</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Reviews drafts vs. approved procedures, checks consistency, suggests improvements. Speeds up review backlog and reduces onboarding time.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Built</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Quality · DMS</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">DMS Investigation Support (Copilot)</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Copilot ingests large DMS investigation datasets → generates analysis, calculations, charts, and findings. Significant reduction in manual effort.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Active</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#FCD34D;margin-bottom:5px">Engineering · Equipment</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Equipment Qualification Assistant</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Concept agent to generate qualification protocol content from procedures, existing qualifications, and tool records. Identifies equipment details and classification.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(245,166,35,0.2);color:#FCD34D;padding:2px 8px;border-radius:10px;display:inline-block">Concept</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Manufacturing · QC</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">QC Report Validation Agent</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Reports that pass system checks but contain invalid data are now caught by agent before release. Verifies tolerances, tables, and expected outputs.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Built</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Manufacturing · Ops</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Shift Transfer Automation</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Manual shift notes → AI-structured transfer reports. Easier audit preparation, better traceability, historical visibility. Audience reaction: very positive.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Active</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#4ADE80;margin-bottom:5px">Quality · Reporting</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">Automated Weekly Quality Reports</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">SAP → Excel → PowerPoint done automatically. Saves 30-40 min/week. If owner is absent, any team member can run it — knowledge is no longer person-dependent.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(0,166,81,0.2);color:#4ADE80;padding:2px 8px;border-radius:10px;display:inline-block">Active</div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:14px">
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:#FCD34D;margin-bottom:5px">Supplier Quality · SQE</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:4px">SCAR Review Agent</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.4">Prototype reviews SCAR packages, flags missing info, weak responses, and procedure gaps. Future vision: deploy across Philips SQE teams — potentially to suppliers too.</div>
+        <div style="margin-top:8px;font-size:9px;font-weight:600;background:rgba(245,166,35,0.2);color:#FCD34D;padding:2px 8px;border-radius:10px;display:inline-block">Prototype</div>
+      </div>
+
+    </div>
+
+    <!-- Bottom row: themes + open questions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:8px">Key Finding (Roee)</div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px">Technology is ahead of governance.</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.5">Multiple teams independently built similar solutions — review agents, reporting agents, validation agents. The bottleneck is no longer the AI. It's governance, data access, security approvals, and enterprise integration.</div>
+      </div>
+      <div>
+        <div style="font-family:'Geist Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.35);margin-bottom:8px">5 Open Questions for Management</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);padding:5px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid #0066CC">What sensitive enterprise data can agents access?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);padding:5px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid #0066CC">How should service accounts be managed?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);padding:5px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid #0066CC">How will token consumption be controlled?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);padding:5px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid #0066CC">Which integrations should be centralized?</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);padding:5px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border-left:2px solid #0066CC">What governance model should Haifa adopt?</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── MANAGER BRIEF ─── -->
+<div class="mgr-brief" style="margin-top:24px">
+  <div class="mgr-brief-card reveal">
+    <div class="mgr-brief-top">
+      <div>
+        <div class="mgr-brief-label">Manager Brief · Latest Session <span class="label-heb">תדריך מנהלים · עדכון אחרון</span></div>
+        <div class="mgr-brief-title">CT Agentic AI Core Team — S5 Recap</div>
+      </div>
+      <div class="mgr-brief-date">27 Aug 2026</div>
+    </div>
+    <div class="mgr-brief-cols">
+      <!-- Key takeaways -->
+      <div>
+        <div class="mgr-section-label">What happened</div>
+        <ul class="mgr-points">
+          <li><strong>Copilot-first is now official policy.</strong> Copilot Chat &amp; Agents are the baseline for all employees. ChatGPT/Claude are for specific advanced needs only.</li>
+          <li><strong>AOP 2027 budget gap raised by Roee.</strong> AI spend is expected to move to BU responsibility — no model finalized yet. AOP closes end of October. Decision urgently needed.</li>
+          <li><strong>AI training: 1-2h/week recommended.</strong> White Belt + Yellow Belt. Managers should complete White Belt and encourage their teams.</li>
+          <li><strong>Cross-BU scaling accelerating.</strong> R&amp;D agents (CR Agent, Drawing Review Agent) expanding to broader CT/AMI deployment. Ultrasound, DXR, MR now collaborating.</li>
+          <li><strong>Marketing: CT Content Agent launching.</strong> SharePoint AI search agent in testing — targets launch within days. RFP Agent reduces repetitive tender work.</li>
+          <li><strong>€1M+ infrastructure decision pending.</strong> R&amp;D evaluating local AI hosting to reduce token costs. Finance involved.</li>
+          <li><strong>Leadership session Sept 8.</strong> Zoe joining. Focus: current AI state, what works, open questions, AI Portal navigation.</li>
+          <li><strong>Roee's open question to CT:</strong> Should Philips scale through Copilot only, or also broader Claude/ChatGPT deployment for larger transformation?</li>
+        </ul>
+      </div>
+      <!-- Action items -->
+      <div>
+        <div class="mgr-section-label">Action Items (S5)</div>
+        <table class="action-table">
+          <tr><th>Action</th><th>Owner</th></tr>
+          <tr><td>Define guidance for AI profile upgrade justification process</td><td class="action-owner">Matthijs</td></tr>
+          <tr><td>Provide managers guidance on AI budgeting for AOP 2027</td><td class="action-owner">Matthijs</td></tr>
+          <tr><td>Continue AI training guidance &amp; adoption</td><td class="action-owner">Leadership</td></tr>
+          <tr><td>Prepare AI segment for Sept 8 leadership meeting</td><td class="action-owner">Geoff / Matthijs</td></tr>
+          <tr><td>Expand R&amp;D inventory of AI agents and use cases</td><td class="action-owner">Henning</td></tr>
+          <tr><td>Continue evaluation of local AI hosting / business case</td><td class="action-owner">R&amp;D + Finance</td></tr>
+          <tr><td>Share learnings from Service AI deployment activities</td><td class="action-owner">Shu-Zhi</td></tr>
+          <tr><td>Continue testing and rollout of Marketing AI agents</td><td class="action-owner">Danielle</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BENTO STATUS BOARD ─── -->
+<div class="section" id="status">
+  <div class="section-title reveal">Haifa OPS AI Program <span class="heb">תוכנית AI חיפה OPS</span></div>
+
+  <div class="bento">
+
+    <!-- 01 Factory — wide primary card -->
+    <div class="bcard span-8 reveal">
+      <div class="bcard-inner">
+        <div class="card-num">01</div>
+        <div class="card-title">AI Factory &amp; Operations</div>
+        <div class="card-desc">AI applied directly to manufacturing, maintenance, quality, and shop floor processes. The highest-value vector for Haifa.</div>
+        <div class="uc-list" style="margin-top:20px">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">TMV Gap Assessment Agent</div><div class="uc-dept">ISC</div><div class="uc-stat">80% faster</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">Daily Equipment Check (Digital)</div><div class="uc-dept">ISC</div><div class="uc-stat">Zero missed</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">EHS Interactive Training</div><div class="uc-dept">ISC</div><div class="uc-stat">24/7 access</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-name">Predictive Maintenance</div><div class="uc-dept">ISC</div><div class="uc-stat">Planned</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-name">Quality Inspection (CV)</div><div class="uc-dept">ISC</div><div class="uc-stat">Exploring</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Quality — stacked right -->
+    <div class="bcard span-4 reveal reveal-delay-1">
+      <div class="bcard-inner">
+        <div class="card-num">02</div>
+        <div class="card-title">Quality &amp; Compliance</div>
+        <div class="card-desc">Automating documentation, harmonization, and regulatory processes with human oversight.</div>
+        <div style="margin-top:16px">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">CAPA Writing</div><div class="uc-stat">↓50%</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">QMS Harmonization</div><div class="uc-stat">70% faster</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">Regulatory AI Agents</div><div class="uc-stat">CT-wide</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 PLM — medium card -->
+    <div class="bcard span-5 navy reveal reveal-delay-1">
+      <div class="bcard-inner">
+        <div class="card-num">03</div>
+        <div class="card-title">Engineering &amp; PLM</div>
+        <div class="card-desc">Connecting AI to enterprise systems (Windchill, SAP) to accelerate engineering workflows.</div>
+        <div style="margin-top:20px">
+          <div class="uc-row" style="background:rgba(255,255,255,0.06)"><div class="uc-dot active"></div><div class="uc-name" style="color:#fff">Windchill PLM AI Agent</div><div class="uc-stat" style="color:#6FB3FF">5-8h/wk saved</div></div>
+          <div class="uc-row" style="background:rgba(255,255,255,0.04);margin-top:6px"><div class="uc-dot progress"></div><div class="uc-name" style="color:rgba(255,255,255,0.8)">Enterprise Integration</div><div class="uc-stat" style="color:#fca5a5">Needs Decision</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 Finance — narrow card -->
+    <div class="bcard span-3 reveal reveal-delay-2">
+      <div class="bcard-inner">
+        <div class="card-num">04</div>
+        <div class="card-title">Finance &amp; Business Ops</div>
+        <div class="card-desc">Automating financial processes, cost modeling, and reporting.</div>
+        <div style="margin-top:16px">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-name">Global Costing Agent</div><div class="uc-stat">60-70%↑</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-name">Finance Automation</div><div class="uc-stat">In Progress</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 Tools — full width -->
+    <div class="bcard span-4 blue-accent reveal reveal-delay-3">
+      <div class="bcard-inner">
+        <div class="card-num">05</div>
+        <div class="card-title">AI Tools at Philips Haifa</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+          <a href="https://m365.cloud.microsoft/" target="_blank" rel="noopener" class="tool-link-row">
+            <div class="cap-icon">💬</div>
+            <div class="cap-text" style="flex:1"><strong>Copilot Pro (M365)</strong>Emails, docs, Excel, Teams, meeting notes</div>
+            <span class="tool-open">Open ↗</span>
+          </a>
+          <a href="https://www.aigateway.ai.inside.philips.com/" target="_blank" rel="noopener" class="tool-link-row">
+            <div class="cap-icon">⌨</div>
+            <div class="cap-text" style="flex:1"><strong>Claude Code (AWS)</strong>Code, automation, enterprise systems</div>
+            <span class="tool-open">Open ↗</span>
+          </a>
+          <a href="https://chatgpt.com/" target="_blank" rel="noopener" class="tool-link-row">
+            <div class="cap-icon">⚡</div>
+            <div class="cap-text" style="flex:1"><strong>ChatGPT Enterprise</strong>General AI, images, custom GPTs</div>
+            <span class="tool-open">Open ↗</span>
+          </a>
+          <a href="https://www.aigateway.ai.inside.philips.com/" target="_blank" rel="noopener" class="tool-link-row">
+            <div class="cap-icon">🔑</div>
+            <div class="cap-text" style="flex:1"><strong>AI Gateway (Philips)</strong>Install tools, manage access &amp; approvals</div>
+            <span class="tool-open">Open ↗</span>
+          </a>
+          <a href="https://www.oneview.ai.inside.philips.com/" target="_blank" rel="noopener" class="tool-link-row" style="border-color:rgba(0,102,204,0.3);background:rgba(0,102,204,0.05)">
+            <div class="cap-icon">📊</div>
+            <div class="cap-text" style="flex:1"><strong>AI Token Tracker — OneView</strong>Monitor Copilot, Claude Code, ChatGPT usage</div>
+            <span class="tool-open" style="color:var(--blue)">Open ↗</span>
+          </a>
+        </div>
+        <div style="margin-top:14px;padding:8px 12px;background:rgba(168,92,0,0.08);border-radius:10px;font-size:11px;color:var(--amber);font-weight:500">
+          ⚠ Access requires line manager approval — changed Aug 2026
+        </div>
+      </div>
+    </div>
+
+    <!-- CT Wide + nav links -->
+    <div class="bcard span-8 reveal reveal-delay-2">
+      <div class="bcard-inner" id="usecases">
+        <div class="card-num">06</div>
+        <div class="card-title">CT-Wide AI Use Cases</div>
+        <div class="card-desc">Full landscape — all active and proposed initiatives across CT. Source: <a href="https://share.philips.com/:x:/r/sites/ONEGlobalCT/Shared%20Documents/19.%20People%20led%20Agentic%20AI/01.%20Program%20management/CT%20Agentic%20AI%20-%20Use%20case%20Library.xlsx?d=w18ed4449c8354c69999ab9291b4d4c8d&csf=1&web=1&e=ZWJZag" target="_blank" style="color:var(--blue);text-decoration:none">CT Agentic AI Use Case Library ↗</a></div>
+
+        <div class="pillar">Clinical Innovation &amp; Product Engineering · R&amp;D</div>
+        <div class="uc-list">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">CTQ Ballooning</div><div class="uc-desc">Automates balloon annotations on engineering drawings from CAD data</div></div><div class="uc-dept">R&amp;D · Hannah Klinger</div><div class="uc-stat">2h/drawing</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">AI-assisted Design Check in CAD</div><div class="uc-desc">Validates design against rules and standards before review</div></div><div class="uc-dept">R&amp;D · Toby Lu</div><div class="uc-stat">2h/drawing</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">AI-assisted Drawing Generation</div><div class="uc-desc">Generates full engineering drawings from 3D model and design intent</div></div><div class="uc-dept">R&amp;D · Toby Lu</div><div class="uc-stat">4h/drawing</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">AI-assisted Early Concept Generation in CAD</div><div class="uc-desc">Creates initial 3D concept models from product requirements</div></div><div class="uc-dept">R&amp;D · Toby Lu</div><div class="uc-stat">6h/model</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">AI Knowledge Search Agent</div><div class="uc-desc">Finds relevant engineering knowledge across internal documents and specs</div></div><div class="uc-dept">R&amp;D · Talal El Chaar</div><div class="uc-stat">10% gain</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Standard Part Selector (Electrical Components)</div><div class="uc-desc">Recommends optimal components by matching specs, cost, and obsolescence data</div></div><div class="uc-dept">R&amp;D · Bernhard Wagner</div><div class="uc-stat">Acceleration</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Value &amp; Cost Engineering Agents</div><div class="uc-desc">Automates target costing and cost bridge analysis across design phases</div></div><div class="uc-dept">R&amp;D + I&amp;D · Henning</div><div class="uc-stat">Cost ctrl</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">PD Lighthouse — SW Dev Lifecycle Acceleration</div><div class="uc-desc">AI-powered infrastructure across the full software development lifecycle</div></div><div class="uc-dept">R&amp;D</div><div class="uc-stat">20% TTM↓</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Literature Mapping (PubMed/Scholar → Clinical Claims)</div><div class="uc-desc">Continuously maps new publications to existing clinical product claims</div></div><div class="uc-dept">Clinical</div><div class="uc-stat">Proposed</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Literature Review for CER and PMCF</div><div class="uc-desc">AI-assisted analysis and substantiation for regulatory clinical evidence files</div></div><div class="uc-dept">Clinical Affairs</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Product Configuration History Review</div><div class="uc-desc">Simplifies product catalog by analyzing historical configuration patterns</div></div><div class="uc-dept">Product Mgmt</div><div class="uc-stat">Proposed</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">AI Software Development</div><div class="uc-desc">AI-assisted code generation, review, and documentation for R&amp;D engineers</div></div><div class="uc-dept">R&amp;D</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">DHF Automation</div><div class="uc-desc">Auto-generates Design History File entries from project and design data</div></div><div class="uc-dept">R&amp;D</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Automation Testing Generation</div><div class="uc-desc">Generates test scripts and cases automatically from product requirements</div></div><div class="uc-dept">R&amp;D</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">AI-assist Program Management</div><div class="uc-desc">AI for project planning, status analysis, and meeting summaries</div></div><div class="uc-dept">PMO</div><div class="uc-stat">High impact</div></div>
+        </div>
+
+        <div class="pillar">Customer Engagement &amp; Commercial Excellence</div>
+        <div class="uc-list">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Customer Alert + Root Cause Investigation</div><div class="uc-desc">Identifies customer field issues, traces root cause, and proposes resolution path</div></div><div class="uc-dept">Quality · Yaara</div><div class="uc-stat">Cost avoid</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Win-Loss Analysis &amp; Sales Insights (SFDC)</div><div class="uc-desc">Extracts win/loss patterns from Salesforce to improve messaging and win rates</div></div><div class="uc-dept">Commercial Excellence</div><div class="uc-stat">Transformative</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Competitive Intelligence Agent (MI&amp;A)</div><div class="uc-desc">Monitors competitor activity from public and internal sources, surfaces insights</div></div><div class="uc-dept">Marketing</div><div class="uc-stat">Faster insights</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Marketing Content &amp; Communications (Video, Images)</div><div class="uc-desc">AI-generated product videos, images, and marketing materials</div></div><div class="uc-dept">Marketing</div><div class="uc-stat">Proposed</div></div>
+        </div>
+
+        <div class="pillar">Operational Excellence &amp; Automation</div>
+        <div class="uc-list">
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Windchill PLM AI Agent</div><div class="uc-desc">Natural-language control over PLM tasks — BOMs, ECNs, parts, and lifecycle</div></div><div class="uc-dept">ISC · Roee Lahav</div><div class="uc-stat">5-8h/wk</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">QMS Harmonization</div><div class="uc-desc">Finds semantic gaps and drafts harmonized quality documents across sites</div></div><div class="uc-dept">ISC · Roee Lahav</div><div class="uc-stat">70% faster</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">TMV Gap Assessment Agent</div><div class="uc-desc">Reads GR&amp;R measurement data and auto-completes validation forms for QA review</div></div><div class="uc-dept">ISC · Roee Lahav</div><div class="uc-stat">80% faster</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">EHS Interactive Training</div><div class="uc-desc">On-demand safety scenarios built from real incident data, personalized per employee</div></div><div class="uc-dept">ISC · Roee Lahav</div><div class="uc-stat">24/7 access</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Global Costing AI Agent</div><div class="uc-desc">Drafts cost estimates from BOMs and supplier pricing for engineer review</div></div><div class="uc-dept">ISC · Roee Lahav</div><div class="uc-stat">60-70%↑</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Regulatory AI Agents</div><div class="uc-desc">Reviews submission docs, flags evidence gaps, and monitors new regulatory standards</div></div><div class="uc-dept">RA · Veronica Padharia</div><div class="uc-stat">Refinement</div></div>
+          <div class="uc-row"><div class="uc-dot active"></div><div class="uc-info"><div class="uc-name">Horizontal Complaint Analysis (IIA/CAPA)</div><div class="uc-desc">AI collects and validates complaint data for investigation — 30h saved per IIA</div></div><div class="uc-dept">Quality · Or Green</div><div class="uc-stat">30h/IIA</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">DHF &amp; Reliability Establishment</div><div class="uc-desc">AI-assisted creation of Design History File and reliability documentation</div></div><div class="uc-dept">QA</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Ad-promo / Marketing Claims Review</div><div class="uc-desc">Legal review of promotional content against approved claims library</div></div><div class="uc-dept">Legal</div><div class="uc-stat">High impact</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">APQP/PV Records Auto-Check</div><div class="uc-desc">Auto-validates supplier quality records during APQP process, SQE confirms</div></div><div class="uc-dept">SQE</div><div class="uc-stat">Better quality</div></div>
+          <div class="uc-row"><div class="uc-dot progress"></div><div class="uc-info"><div class="uc-name">Supplier Contract Drafting &amp; Review</div><div class="uc-desc">AI drafts and reviews supplier agreements, legal and procurement verify outcomes</div></div><div class="uc-dept">Procurement</div><div class="uc-stat">Faster cycles</div></div>
+        </div>
+
+        <div style="font-size:11px;color:var(--text-3);margin-top:14px;padding:10px 14px;background:var(--surface-dim);border-radius:10px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span> Agent being built / Active</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block"></span> New Proposal / Planned</span>
+          <span style="color:var(--text-3)">30 use cases · Updated Sep 2026</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── GOVERNANCE FULL WIDTH ─── -->
+<div class="section gov-full" id="governance">
+  <div>
+    <div class="section-title reveal">Governance &amp; Management Direction <span class="heb">ממשל וכיוון ניהולי</span></div>
+    <div class="card-desc reveal" style="margin-bottom:24px">Open decisions requiring leadership input — things blocking further progress or scale.</div>
+
+    <div class="gov-grid reveal reveal-delay-1">
+      <div class="decision critical">
+        <div class="decision-title">Enterprise System Access for AI</div>
+        <div class="decision-body">AI tools need to connect to Windchill and SAP. Access rights differ between users. No framework exists for how AI should securely access enterprise data.</div>
+        <div class="decision-ask">Who owns the framework for AI-to-enterprise integration?</div>
+      </div>
+      <div class="decision critical">
+        <div class="decision-title">AI Budget Ownership</div>
+        <div class="decision-body">Token-based tools (Claude, ChatGPT) scale with usage. Costs can surprise. Uber burned its entire 2026 AI budget in 4 months. Currently unclear who controls Haifa spend.</div>
+        <div class="decision-ask">Is there a site-level AI budget? Who controls token spend?</div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">Next Pain Points for AI</div>
+        <div class="decision-body">We have 9 active use cases proving value. We need management to identify the next 2-3 highest-value operational pain points where AI should focus next.</div>
+        <div class="decision-ask">What are the top 3 processes costing you the most time or money?</div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">AI Validation &amp; Sign-off</div>
+        <div class="decision-body">When AI generates solutions — who validates the output? Who maintains it over time? Critical for regulated operations (FDA, ISO 13485).</div>
+        <div class="decision-ask">Who signs off on AI-generated work entering production workflows?</div>
+      </div>
+      <div class="decision info">
+        <div class="decision-title">Approval Process — Changed Aug 2026</div>
+        <div class="decision-body">Access to ChatGPT Enterprise and Claude Code now requires <strong>line manager approval</strong> (not AI Champions). Managers evaluate business value before granting access.</div>
+        <div class="decision-ask">Managers: are you aware this is now your responsibility?</div>
+      </div>
+      <div class="decision critical">
+        <div class="decision-title">S5: AOP 2027 AI Budget — Urgent</div>
+        <div class="decision-body">AI spend is expected to shift to BU responsibility. AOP closes end of October. No finalized budget model exists yet. Managers need clarity now to plan properly.</div>
+        <div class="decision-ask">How should managers budget AI consumption in 2027? (Matthijs to provide guidance)</div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">S5: AI Profile Upgrade Process</div>
+        <div class="decision-body">Employees requesting ChatGPT upgrades (Standard → Pioneer) must now explain intended use, use cases, and expected ROI. Not a full business case — but enough for informed manager decision.</div>
+        <div class="decision-ask">Managers: require justification before approving profile upgrades</div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">S5: Data Governance — How Much Is Safe?</div>
+        <div class="decision-body">Marketing and Service teams are uncertain about allowed data usage in AI tools. What can be shared? What are the guardrails? Henning suggests Kairos (Philips-controlled) for sensitive data.</div>
+        <div class="decision-ask">Where is the official Philips guidance on AI data boundaries?</div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">S5: Local AI Infrastructure — €1M+ Decision</div>
+        <div class="decision-body">R&D evaluating local AI hosting to reduce token cost dependency. Infrastructure options could exceed €1M CapEx. Finance is involved. Token-consumption models also escalate rapidly at scale.</div>
+        <div class="decision-ask">R&D + Finance: approve infrastructure business case evaluation</div>
+      </div>
+    </div>
+
+    <div class="btn-row reveal" style="margin-top:32px">
+      <a href="https://share.philips.com/sites/HaifaOPSAI/SitePages/Agentic-AI-CT.aspx" class="btn btn-primary" target="_blank">
+        Full Status Board
+        <span class="btn-icon">↗</span>
+      </a>
+      <a href="https://share.philips.com/sites/HaifaOPSAI" class="btn btn-ghost" target="_blank">
+        SharePoint Hub
+        <span class="btn-icon" style="color:var(--navy)">→</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── LINKS BAR ─── -->
+<div class="links-bar reveal">
+  <a href="https://share.philips.com/sites/HaifaOPSAI" class="link-pill" target="_blank">Haifa OPS AI SharePoint</a>
+  <a href="https://roeelahavphilips.github.io/philips-haifa-ops-ai-strategy/" class="link-pill" target="_blank">AI Strategy Guide (Hebrew)</a>
+  <a href="https://theagenticawakening.com/the-agentic-awakening.pdf" class="link-pill" target="_blank">Agentic Awakening Report</a>
+  <a href="https://share.philips.com/sites/Intranet_GlobalAIhub" class="link-pill" target="_blank">Global AI Hub</a>
+</div>
+
+<!-- ─── USER STATS ─── -->
+<div style="max-width:1360px;margin:0 auto;padding:24px 40px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)">
+  <div style="background:var(--surface);padding:24px 32px;text-align:center">
+    <div style="font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--blue)">9</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-top:4px">Active Use Cases</div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:2px">Across OPS functions</div>
+  </div>
+  <div style="background:var(--surface);padding:24px 32px;text-align:center">
+    <div style="font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--text-3)">?</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-top:4px">Copilot Pro Users</div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:2px">M365 · ~$300/yr per seat</div>
+  </div>
+  <div style="background:var(--surface);padding:24px 32px;text-align:center">
+    <div style="font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--text-3)">?</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-top:4px">Claude Code Users</div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:2px">AWS Bedrock · token-based</div>
+  </div>
+  <div style="background:var(--surface);padding:24px 32px;text-align:center">
+    <div style="font-size:36px;font-weight:900;letter-spacing:-0.04em;color:var(--text-3)">?</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-top:4px">ChatGPT Enterprise</div>
+    <div style="font-size:10px;color:var(--text-3);margin-top:2px">OpenAI · per-seat</div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="f-brand">
+    <span class="fw">PHILIPS</span>
+    <span class="f-copy">Haifa Operations &nbsp;·&nbsp; AI Status Board &nbsp;·&nbsp; Updated 27 Aug 2026 &nbsp;·&nbsp; Internal Use Only</span>
+  </div>
+  <div class="f-right"><a href="mailto:roee.lahav@philips.com">roee.lahav@philips.com</a></div>
+</footer>
+
+<!-- ─── SCROLL REVEAL OBSERVER ─── -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+<script id="parallax-js">
+(function() {
+  const hero = document.querySelector('.hero');
+  const heroBgPan = document.querySelector('.hero-bg-pan');
+  if (!hero) return;
+
+  // Disable parallax on mobile
+  const mq = window.matchMedia('(max-width: 768px)');
+  let ticking = false;
+
+  function onScroll() {
+    if (mq.matches) return;
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        const sy = window.scrollY;
+        // Subtle hero parallax — content drifts up at 0.35× scroll rate
+        hero.style.transform = 'translateY(' + (sy * 0.35) + 'px)';
+        // Nav stays sticky — no adjustment needed
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Magnetic tilt on bento cards
+  document.querySelectorAll('.bcard, .ongoing-card').forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform =
+        'translateY(-5px) rotateX(' + (-y * 3) + 'deg) rotateY(' + (x * 3) + 'deg)';
+    });
+    card.addEventListener('mouseleave', function() {
+      card.style.transform = '';
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
