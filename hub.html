@@ -449,15 +449,14 @@ footer .r a:hover{color:#fff}
 
 /* ─── QUICK ACCESS LINKS ─── */
 .quick-links-bar {
-  position: absolute;
-  top: 90px;
-  left: 48px;
-  right: 48px;
   display: flex;
   align-items: center;
   gap: 10px;
-  z-index: 10;
   flex-wrap: wrap;
+  padding: 20px 48px 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--bg);
 }
 .ql-label {
   font-size: 9px;
@@ -519,7 +518,7 @@ footer .r a:hover{color:#fff}
 }
 .ql-link:hover .ql-arrow { transform: translate(2px,-2px); opacity: 1; }
 @media (max-width: 768px) {
-  .quick-links-bar { top: 72px; left: 20px; right: 20px; }
+  .quick-links-bar { padding: 16px 20px 20px; }
   .ql-label { display: none; }
 }
 
@@ -1010,29 +1009,6 @@ footer .f-right a{font-size:11px;color:rgba(255,255,255,0.6);text-decoration:non
   <div class="blob blob-3" aria-hidden="true"></div>
   <div class="hero-fade-mask" aria-hidden="true"></div>
 
-  <!-- ─── QUICK ACCESS LINKS ─── -->
-  <div class="quick-links-bar reveal">
-    <span class="ql-label">Philips AI Portals</span>
-
-    <a href="https://www.oneview.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
-      <div class="ql-icon blue-icon">📊</div>
-      <div class="ql-body">
-        <span class="ql-title">AI Token Tracker — OneView</span>
-        <span class="ql-sub">Copilot · GitHub Copilot · ChatGPT · Claude Code</span>
-      </div>
-      <span class="ql-arrow">↗</span>
-    </a>
-
-    <a href="https://www.aigateway.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
-      <div class="ql-icon navy-icon">🔑</div>
-      <div class="ql-body">
-        <span class="ql-title">AI Gateway</span>
-        <span class="ql-sub">Install Claude Code &amp; ChatGPT Enterprise</span>
-      </div>
-      <span class="ql-arrow">↗</span>
-    </a>
-  </div>
-
   <div class="hero-eyebrow reveal">
     <span class="live-dot"></span>
     Live Status Board · 27 Aug 2026
@@ -1048,6 +1024,29 @@ footer .f-right a{font-size:11px;color:rgba(255,255,255,0.6);text-decoration:non
       <span>OPS Innovation &amp; AI</span>
     </div>
   </div>
+</div>
+
+<!-- ─── QUICK ACCESS LINKS ─── -->
+<div class="quick-links-bar reveal">
+  <span class="ql-label">Philips AI Portals</span>
+
+  <a href="https://www.oneview.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
+    <div class="ql-icon blue-icon">📊</div>
+    <div class="ql-body">
+      <span class="ql-title">AI Token Tracker — OneView</span>
+      <span class="ql-sub">Copilot · GitHub Copilot · ChatGPT · Claude Code</span>
+    </div>
+    <span class="ql-arrow">↗</span>
+  </a>
+
+  <a href="https://www.aigateway.ai.inside.philips.com/" class="ql-link" target="_blank" rel="noopener">
+    <div class="ql-icon navy-icon">🔑</div>
+    <div class="ql-body">
+      <span class="ql-title">AI Gateway</span>
+      <span class="ql-sub">Install Claude Code &amp; ChatGPT Enterprise</span>
+    </div>
+    <span class="ql-arrow">↗</span>
+  </a>
 </div>
 
 <!-- ─── ONGOING TASKS STRIP ─── -->
